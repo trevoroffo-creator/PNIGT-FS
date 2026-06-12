@@ -1,0 +1,775 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PNIGT-FS - Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./src/styles/app.css" />
+  <script defer src="./src/js/app.js"></script>
+  <script>
+    // Fallback theme init before CSS loads for smoother UX
+    try {
+      const t = localStorage.getItem('pnigtfs_theme');
+      if (t === 'dark') document.documentElement.dataset.theme = 'dark';
+      if (t === 'light') document.documentElement.dataset.theme = 'light';
+    } catch (e) {}
+  </script>
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <!-- Top loader (hidden by default) -->
+    <div class="global-loader" aria-hidden="true"></div>
+
+    <!-- Auth pages -->
+    <main id="main" class="main" aria-label="PNIGT-FS">
+      <section id="screen-login" class="screen" data-route="login" aria-label="Connexion">
+        <div class="auth-bg" aria-hidden="true">
+          <div class="auth-bg__grid"></div>
+          <div class="auth-bg__glow"></div>
+          <div class="auth-bg__lock">🔒</div>
+        </div>
+
+        <div class="auth-card" role="region" aria-label="Formulaire de connexion">
+          <header class="auth-header">
+            <div class="brand-logos">
+              <div class="brand-logo" title="République de Côte d’Ivoire">
+                <div class="crest">🇨🇮</div>
+                <div class="brand-logo__label">République de Côte d’Ivoire</div>
+              </div>
+              <div class="brand-logo" title="Ministère de la Défense">
+                <div class="crest crest--defense">🛡️</div>
+                <div class="brand-logo__label">Ministère de la Défense</div>
+              </div>
+            </div>
+
+            <h1 class="auth-title">Plateforme Nationale Intelligente de Gestion et de Traçabilité des Forces de Sécurité</h1>
+            <p class="auth-subtitle">Gestion d'agents</p>
+          </header>
+
+          <form id="login-form" class="form" autocomplete="off" novalidate>
+            <div class="field">
+              <label for="login-id">Matricule ou Email</label>
+              <input id="login-id" name="loginId" type="text" placeholder="ex : CI-123456" required />
+              <div class="field__hint" id="login-id-hint">Saisissez votre matricule ou votre email institutionnel.</div>
+            </div>
+
+            <div class="field">
+              <label for="login-pass">Mot de passe</label>
+              <input id="login-pass" name="password" type="password" placeholder="••••••••" required />
+            </div>
+
+            <div class="field field--row">
+              <button id="btn-login" type="submit" class="btn btn--primary">
+                Connexion
+              </button>
+              <button id="btn-demo" type="button" class="btn btn--ghost" title="Remplit des identifiants de démonstration">
+                Démo
+              </button>
+            </div>
+
+            <div class="security-note" role="note">
+              <span class="pill pill--success">2FA</span>
+              <span>Authentification à double facteur activée.</span>
+            </div>
+          </form>
+
+          <footer class="auth-footer">
+            <span class="muted">Prototype — données simulées localement.</span>
+            <span class="muted">Niveau de sécurité : Élevé (UI).</span>
+          </footer>
+        </div>
+      </section>
+
+      <!-- App layout (sidebar + navbar) -->
+      <section id="screen-app" class="screen screen--app" data-route="app" aria-label="Application">
+        <div class="layout">
+          <aside class="sidebar" aria-label="Navigation principale">
+            <div class="sidebar__top">
+              <div class="sidebar__brand">
+                <div class="sidebar__mark">PNIGT</div>
+                <div class="sidebar__text">
+                  <div class="sidebar__title">PNIGT-FS</div>
+                  <div class="sidebar__subtitle">Console sécurisée</div>
+                </div>
+              </div>
+            </div>
+
+            <nav class="nav">
+              <a class="nav__item nav__item--active" href="#" data-nav="dashboard">Accueil</a>
+              <a class="nav__item" href="#" data-nav="agents">Agents</a>
+              <a class="nav__item" href="#" data-nav="affectations">Affectations</a>
+              <a class="nav__item" href="#" data-nav="grades">Grades</a>
+              <a class="nav__item" href="#" data-nav="formations">Formations</a>
+              <a class="nav__item" href="#" data-nav="sante">Santé</a>
+              <a class="nav__item" href="#" data-nav="documents">Documents</a>
+              <a class="nav__item" href="#" data-nav="stats">Statistiques</a>
+              <a class="nav__item" href="#" data-nav="audit">Audit</a>
+              <a class="nav__item" href="#" data-nav="admin">Administration</a>
+            </nav>
+
+            <div class="sidebar__bottom">
+              <button class="btn btn--small btn--ghost w-100" id="btn-theme">
+                🌙 Mode sombre
+              </button>
+            </div>
+          </aside>
+
+          <div class="content">
+            <header class="topbar" aria-label="Barre supérieure">
+              <div class="search">
+                <input id="global-search" type="search" placeholder="Recherche globale (matricule, nom, unité)..." />
+                <span class="search__icon" aria-hidden="true">⌕</span>
+              </div>
+
+              <div class="topbar__actions">
+                <button class="icon-btn" id="btn-notif" aria-label="Notifications">🔔</button>
+                <button class="avatar" id="btn-profile" aria-label="Profil">
+                  <span class="avatar__dot" aria-hidden="true"></span>
+                  <span class="avatar__name">Admin</span>
+                </button>
+              </div>
+            </header>
+
+            <div class="page" id="page" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Modals -->
+    <div class="modal-backdrop" id="modal-backdrop" hidden></div>
+
+    <div class="modal" id="modal-2fa" role="dialog" aria-modal="true" aria-labelledby="modal-2fa-title" hidden>
+      <div class="modal__panel">
+        <header class="modal__header">
+          <div>
+            <h2 class="modal__title" id="modal-2fa-title">Vérification 2FA</h2>
+            <p class="modal__subtitle">Entrez le code à 6 chiffres (mock).</p>
+          </div>
+          <button class="icon-btn" data-modal-close="1" aria-label="Fermer">✕</button>
+        </header>
+
+        <div class="modal__body">
+          <div class="code-inputs" role="group" aria-label="Code 2FA">
+            <input class="code-input" inputmode="numeric" maxlength="1" />
+            <input class="code-input" inputmode="numeric" maxlength="1" />
+            <input class="code-input" inputmode="numeric" maxlength="1" />
+            <input class="code-input" inputmode="numeric" maxlength="1" />
+            <input class="code-input" inputmode="numeric" maxlength="1" />
+            <input class="code-input" inputmode="numeric" maxlength="1" />
+          </div>
+
+          <div class="modal__meta">
+            <div class="alert alert--info" role="status">
+              Astuce : pour la démo, utilisez <b>123456</b>.
+            </div>
+          </div>
+        </div>
+
+        <footer class="modal__footer">
+          <button class="btn btn--primary" id="btn-2fa-verify">Vérifier</button>
+          <button class="btn btn--ghost" data-modal-close="1">Annuler</button>
+        </footer>
+      </div>
+    </div>
+
+    <div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="true"></div>
+  </div>
+
+  <!-- Page templates (injected by JS) -->
+  <template id="tpl-dashboard">
+    <section class="page__header">
+      <div>
+        <h2>Dashboard National</h2>
+        <p class="muted">Vue d’ensemble — effectifs, affectations et activité récente.</p>
+      </div>
+      <div class="quick-actions">
+        <button class="btn btn--small btn--ghost">Exporter</button>
+        <button class="btn btn--small btn--primary" data-action="route" data-route="agents">Gérer agents</button>
+      </div>
+    </section>
+
+    <section class="grid grid--cards">
+      <article class="stat-card">
+        <div class="stat-card__icon" aria-hidden="true">👥</div>
+        <div class="stat-card__body">
+          <div class="stat-card__label">Nombre total d’agents</div>
+          <div class="stat-card__value" data-bind="totalAgents">—</div>
+        </div>
+      </article>
+      <article class="stat-card stat-card--accent">
+        <div class="stat-card__icon" aria-hidden="true">✅</div>
+        <div class="stat-card__body">
+          <div class="stat-card__label">Agents actifs</div>
+          <div class="stat-card__value" data-bind="activeAgents">—</div>
+        </div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-card__icon" aria-hidden="true">🪪</div>
+        <div class="stat-card__body">
+          <div class="stat-card__label">Départs à la retraite</div>
+          <div class="stat-card__value" data-bind="retirement">—</div>
+        </div>
+      </article>
+      <article class="stat-card stat-card--green">
+        <div class="stat-card__icon" aria-hidden="true">📍</div>
+        <div class="stat-card__body">
+          <div class="stat-card__label">Affectations en cours</div>
+          <div class="stat-card__value" data-bind="affectationsEnCours">—</div>
+        </div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-card__icon" aria-hidden="true">👮</div>
+        <div class="stat-card__body">
+          <div class="stat-card__label">Policiers</div>
+          <div class="stat-card__value" data-bind="policiers">—</div>
+        </div>
+      </article>
+      <article class="stat-card stat-card--orange">
+        <div class="stat-card__icon" aria-hidden="true">🧑‍✈️</div>
+        <div class="stat-card__body">
+          <div class="stat-card__label">Gendarmes</div>
+          <div class="stat-card__value" data-bind="gendarmes">—</div>
+        </div>
+      </article>
+    </section>
+
+    <section class="grid grid--2">
+      <div class="panel">
+        <div class="panel__header">
+          <h3>Répartition par région</h3>
+          <span class="chip">Interactif (mock)</span>
+        </div>
+        <div class="chart chart--map" data-chart="regions">
+          <svg viewBox="0 0 650 360" class="map-svg" aria-label="Carte Côte d’Ivoire (mock)">
+            <path d="M120,85 C170,40 240,35 285,68 C320,92 354,105 403,95 C454,84 510,94 548,132 C590,172 593,240 555,268 C503,305 433,300 372,282 C316,265 263,265 214,242 C165,219 95,160 120,85 Z" class="map-shape" />
+            <g class="map-bubbles" fill="var(--c-orange)">
+              <circle cx="255" cy="145" r="10" />
+              <circle cx="310" cy="120" r="8" fill="var(--c-green)"/>
+              <circle cx="360" cy="165" r="12" />
+              <circle cx="430" cy="210" r="9" fill="var(--c-orange)"/>
+            </g>
+          </svg>
+          <div class="chart__legend">
+            <span><i class="dot" style="background:var(--c-green)"></i>Nord</span>
+            <span><i class="dot" style="background:var(--c-orange)"></i>Centre</span>
+            <span><i class="dot" style="background:var(--c-primary)"></i>Sud</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__header">
+          <h3>Répartition par grade</h3>
+          <span class="chip">Donnees simulées</span>
+        </div>
+        <div class="chart chart--bars" data-chart="grades">
+          <div class="barlist">
+            <div class="barrow" style="--w:78%"><span>Capitaines</span><div class="bar"><i></i></div></div>
+            <div class="barrow" style="--w:62%"><span>Lieutenants</span><div class="bar"><i></i></div></div>
+            <div class="barrow" style="--w:44%"><span>Sous-officiers</span><div class="bar"><i></i></div></div>
+            <div class="barrow" style="--w:31%"><span>Elèves</span><div class="bar"><i></i></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__header">
+          <h3>Évolution des effectifs</h3>
+          <span class="chip">Mock</span>
+        </div>
+        <div class="chart chart--line" data-chart="trend">
+          <svg viewBox="0 0 600 240" class="line-svg" aria-label="Graphique évolution (mock)">
+            <path d="M40,190 L110,160 L180,175 L250,120 L320,135 L390,95 L460,105 L530,70" class="line" fill="none" />
+            <g fill="var(--c-orange)">
+              <circle cx="110" cy="160" r="5"/>
+              <circle cx="250" cy="120" r="5"/>
+              <circle cx="390" cy="95" r="5"/>
+              <circle cx="530" cy="70" r="5"/>
+            </g>
+          </svg>
+          <div class="chart__xlabels">
+            <span>2021</span><span>2022</span><span>2023</span><span>2024</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__header">
+          <h3>Activités récentes</h3>
+          <span class="chip">Temps réel (mock)</span>
+        </div>
+        <div class="activity-list" data-activity>
+          <div class="activity-item">
+            <span class="activity-badge badge--green">Affectation</span>
+            <div class="activity-body">
+              <div class="activity-title">Nouvelle affectation validée</div>
+              <div class="activity-meta muted">Matricule CI-103221 • Abidjan → Bouaké • il y a 12 min</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <span class="activity-badge badge--orange">Promotion</span>
+            <div class="activity-body">
+              <div class="activity-title">Promotion au grade supérieur</div>
+              <div class="activity-meta muted">Matricule CI-090144 • il y a 1 h</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <span class="activity-badge badge--blue">Recrutement</span>
+            <div class="activity-body">
+              <div class="activity-title">Nouveau recrutement intégré</div>
+              <div class="activity-meta muted">Unité : École de formation • il y a 3 h</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <span class="activity-badge badge--red">Retraite</span>
+            <div class="activity-body">
+              <div class="activity-title">Départ à la retraite enregistré</div>
+              <div class="activity-meta muted">Matricule CI-011900 • il y a 1 jour</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </template>
+
+  <template id="tpl-agents">
+    <section class="page__header">
+      <div>
+        <h2>Gestion des Agents</h2>
+        <p class="muted">Recherche, filtrage et actions administratives (mock).</p>
+      </div>
+      <div class="quick-actions">
+        <button class="btn btn--small btn--ghost">Importer</button>
+        <button class="btn btn--small btn--primary" id="agents-add">Ajouter un agent</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="filters">
+        <div class="field field--inline">
+          <label>Région</label>
+          <select id="filter-region">
+            <option value="">Toutes</option>
+            <option>Abidjan</option><option>Nord</option><option>Centre</option><option>Ouest</option><option>Sud</option>
+          </select>
+        </div>
+        <div class="field field--inline">
+          <label>Grade</label>
+          <select id="filter-grade">
+            <option value="">Tous</option>
+            <option>Lieutenant</option><option>Capitaine</option><option>Sous-officier</option><option>Élève</option>
+          </select>
+        </div>
+        <div class="field field--inline">
+          <label>Statut</label>
+          <select id="filter-status">
+            <option value="">Tous</option>
+            <option>Actif</option><option>Non actif</option><option>En formation</option>
+          </select>
+        </div>
+        <div class="field field--inline">
+          <label>Corps</label>
+          <select id="filter-body">
+            <option value="">Tous</option>
+            <option>Police</option><option>Gendarmerie</option>
+          </select>
+        </div>
+        <div class="filters__actions">
+          <button class="btn btn--small btn--ghost" id="agents-reset">Réinitialiser</button>
+          <button class="btn btn--small btn--ghost" id="agents-export">Export PDF</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="table" aria-label="Table agents">
+          <thead>
+            <tr>
+              <th>Photo</th>
+              <th>Matricule</th>
+              <th>Nom</th>
+              <th>Prénom</th>
+              <th>Grade</th>
+              <th>Corps</th>
+              <th>Statut</th>
+              <th>Unité actuelle</th>
+              <th>Date d’entrée</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="agents-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="table-footer muted">Pagination (mock) — optimisé pour 100 000 agents.</div>
+    </section>
+  </template>
+
+  <template id="tpl-agent-detail">
+    <section class="page__header">
+      <div>
+        <h2>Fiche Agent</h2>
+        <p class="muted" id="agent-detail-subtitle">—</p>
+      </div>
+      <div class="quick-actions">
+        <button class="btn btn--small btn--ghost">Imprimer</button>
+        <button class="btn btn--small btn--primary" data-action="route" data-route="affectations">Affecter</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="agent-head">
+        <div class="agent-photo" id="agent-photo" aria-label="Photo agent">👤</div>
+        <div class="agent-meta">
+          <div class="agent-meta__grid">
+            <div><div class="k">Nom</div><div class="v" id="agent-nom">—</div></div>
+            <div><div class="k">Prénom</div><div class="v" id="agent-prenom">—</div></div>
+            <div><div class="k">Matricule</div><div class="v" id="agent-matricule">—</div></div>
+            <div><div class="k">Date entrée</div><div class="v" id="agent-entree">—</div></div>
+          </div>
+          <div class="agent-badges" id="agent-badges"></div>
+        </div>
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="Onglets fiche agent">
+        <button class="tab tab--active" data-tab="general" role="tab" aria-selected="true">Informations générales</button>
+        <button class="tab" data-tab="formations" role="tab" aria-selected="false">Formations</button>
+        <button class="tab" data-tab="diplomes" role="tab" aria-selected="false">Diplômes & Certifications</button>
+        <button class="tab" data-tab="grades" role="tab" aria-selected="false">Grades</button>
+        <button class="tab" data-tab="timeline" role="tab" aria-selected="false">Historique & Timeline</button>
+      </div>
+
+      <div class="tab-panels">
+        <div class="tab-panel tab-panel--active" data-panel="general">
+          <div class="form-grid">
+            <div class="info-card"><div class="k">Date de naissance</div><div class="v" id="agent-dn">—</div></div>
+            <div class="info-card"><div class="k">Sexe</div><div class="v" id="agent-sexe">—</div></div>
+            <div class="info-card"><div class="k">Nationalité</div><div class="v" id="agent-nationalite">—</div></div>
+            <div class="info-card"><div class="k">Téléphone</div><div class="v" id="agent-tel">—</div></div>
+            <div class="info-card"><div class="k">Email</div><div class="v" id="agent-email">—</div></div>
+            <div class="info-card"><div class="k">Situation familiale</div><div class="v" id="agent-famille">—</div></div>
+            <div class="info-card"><div class="k">État civil</div><div class="v" id="agent-etatcivil">—</div></div>
+            <div class="info-card"><div class="k">Conjoint</div><div class="v" id="agent-conjoint">—</div></div>
+            <div class="info-card"><div class="k">Enfants</div><div class="v" id="agent-enfants">—</div></div>
+          </div>
+        </div>
+
+        <div class="tab-panel" data-panel="formations">
+          <div class="list-box" id="agent-formations"></div>
+        </div>
+
+        <div class="tab-panel" data-panel="diplomes">
+          <div class="list-box" id="agent-diplomes"></div>
+        </div>
+
+        <div class="tab-panel" data-panel="grades">
+          <div class="list-box" id="agent-grades"></div>
+        </div>
+
+        <div class="tab-panel" data-panel="timeline">
+          <div class="timeline" id="agent-timeline"></div>
+        </div>
+      </div>
+    </section>
+  </template>
+
+  <template id="tpl-affectations">
+    <section class="page__header">
+      <div>
+        <h2>Gestion des Affectations</h2>
+        <p class="muted">Historique complet + nouvelle validation (mock).</p>
+      </div>
+      <div class="quick-actions">
+        <button class="btn btn--small btn--ghost">Annuler validation</button>
+      </div>
+    </section>
+
+    <section class="grid grid--2">
+      <div class="panel">
+        <div class="panel__header"><h3>Nouvelle affectation</h3><span class="chip">Sécurisée</span></div>
+        <form class="form" id="affectation-form" autocomplete="off">
+          <div class="field">
+            <label>Sélection d’un agent</label>
+            <select id="aff-agent">
+              <option value="">Choisir…</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Ancienne unité</label>
+            <input id="aff-old" type="text" readonly />
+          </div>
+          <div class="field">
+            <label>Nouvelle unité</label>
+            <input id="aff-new" type="text" placeholder="ex : Brigade de Bouaké" required />
+          </div>
+          <div class="field">
+            <label>Fonction</label>
+            <input id="aff-func" type="text" placeholder="ex : Enquêteur" required />
+          </div>
+          <div class="field">
+            <label>Date de prise de fonction</label>
+            <input id="aff-date" type="date" required />
+          </div>
+          <button class="btn btn--primary w-100" type="submit">Valider</button>
+        </form>
+      </div>
+
+      <div class="panel">
+        <div class="panel__header"><h3>Historique des affectations</h3><span class="chip">Détails</span></div>
+        <div class="timeline timeline--dense" id="aff-history"></div>
+      </div>
+    </section>
+  </template>
+
+  <template id="tpl-grades">
+    <section class="page__header">
+      <div>
+        <h2>Gestion des Grades</h2>
+        <p class="muted">Attribution de grade + validation hiérarchique (mock).</p>
+      </div>
+      <div class="quick-actions">
+        <button class="btn btn--small btn--ghost">Imprimer décision</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="grid grid--2">
+        <div>
+          <div class="panel__header"><h3>Nouveau grade</h3><span class="chip">Validation</span></div>
+          <form class="form" id="grade-form">
+            <div class="field">
+              <label>Agent</label>
+              <select id="grade-agent"></select>
+            </div>
+            <div class="field">
+              <label>Grade</label>
+              <select id="grade-new">
+                <option>Lieutenant</option>
+                <option>Capitaine</option>
+                <option>Sous-officier</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Date de décision</label>
+              <input id="grade-date" type="date" />
+            </div>
+            <button class="btn btn--primary w-100" type="submit">Demander validation</button>
+          </form>
+        </div>
+        <div>
+          <div class="panel__header"><h3>Historique des promotions</h3><span class="chip">Mock</span></div>
+          <div class="list-box" id="grade-history"></div>
+        </div>
+      </div>
+    </section>
+  </template>
+
+  <template id="tpl-quick-verify">
+    <section class="page__header">
+      <div>
+        <h2>Vérification Rapide d’Agent</h2>
+        <p class="muted">Recherche par matricule et badge statut.</p>
+      </div>
+      <div class="quick-actions">
+        <button class="btn btn--small btn--ghost">Audit de la requête</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="verify">
+        <div class="field field--inline">
+          <label>Entrer le matricule</label>
+          <input id="verify-matricule" type="text" placeholder="ex : CI-123456" />
+        </div>
+        <button class="btn btn--primary" id="verify-btn">Rechercher</button>
+      </div>
+      <div class="verify-result" id="verify-result" hidden>
+        <div class="verify-card">
+          <div class="verify-photo" id="verify-photo">👤</div>
+          <div class="verify-main">
+            <div class="verify-name" id="verify-name">—</div>
+            <div class="verify-meta" id="verify-meta">—</div>
+            <div class="verify-badge" id="verify-badge"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </template>
+
+  <template id="tpl-stats">
+    <section class="page__header">
+      <div>
+        <h2>Statistiques Nationales</h2>
+        <p class="muted">Analytique avancée — données simulées.</p>
+      </div>
+    </section>
+
+    <section class="grid grid--2">
+      <div class="panel">
+        <div class="panel__header"><h3>Carte & répartition</h3><span class="chip">Interactif mock</span></div>
+        <div class="chart chart--map">
+          <svg viewBox="0 0 650 360" class="map-svg" aria-label="Carte Côte d’Ivoire (mock)">
+            <path d="M120,85 C170,40 240,35 285,68 C320,92 354,105 403,95 C454,84 510,94 548,132 C590,172 593,240 555,268 C503,305 433,300 372,282 C316,265 263,265 214,242 C165,219 95,160 120,85 Z" class="map-shape map-shape--alt" />
+          </svg>
+          <div class="chart__legend">
+            <span><i class="dot" style="background:var(--c-orange)"></i>Effectifs</span>
+            <span><i class="dot" style="background:var(--c-primary)"></i>Équipes</span>
+            <span><i class="dot" style="background:var(--c-green)"></i>Opérationnels</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__header"><h3>Effectifs par grade</h3><span class="chip">Mock</span></div>
+        <div class="chart chart--bars">
+          <div class="barlist">
+            <div class="barrow" style="--w:55%"><span>Capitaine</span><div class="bar"><i></i></div></div>
+            <div class="barrow" style="--w:41%"><span>Lieutenant</span><div class="bar"><i></i></div></div>
+            <div class="barrow" style="--w:29%"><span>Sous-officier</span><div class="bar"><i></i></div></div>
+            <div class="barrow" style="--w:18%"><span>Élève</span><div class="bar"><i></i></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__header"><h3>Départs à la retraite prévus</h3><span class="chip">Annuel</span></div>
+        <div class="chart chart--line" style="padding:16px">
+          <svg viewBox="0 0 600 240" class="line-svg" aria-label="Graphique départs (mock)">
+            <path d="M40,200 L120,165 L200,180 L280,135 L360,145 L440,110 L520,120" class="line line--orange" fill="none" />
+          </svg>
+          <div class="chart__xlabels"><span>2024</span><span>2025</span><span>2026</span><span>2027</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__header"><h3>Évolution annuelle des recrutements</h3><span class="chip">Mock</span></div>
+        <div class="chart chart--bars">
+          <div class="barlist">
+            <div class="barrow" style="--w:34%"><span>2024</span><div class="bar"><i></i></div></div>
+            <div class="barrow" style="--w:48%"><span>2025</span><div class="bar"><i></i></div></div>
+            <div class="barrow" style="--w:61%"><span>2026</span><div class="bar"><i></i></div></div>
+            <div class="barrow" style="--w:76%"><span>2027</span><div class="bar"><i></i></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </template>
+
+  <template id="tpl-audit">
+    <section class="page__header">
+      <div>
+        <h2>Journal d’Audit</h2>
+        <p class="muted">Traçabilité cybersécurité — données simulées.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="filters filters--compact">
+        <div class="field field--inline">
+          <label>Type</label>
+          <select id="audit-type">
+            <option value="">Tous</option>
+            <option>Consultation</option>
+            <option>Modification</option>
+            <option>Suppression</option>
+            <option>Export</option>
+          </select>
+        </div>
+        <div class="field field--inline">
+          <label>Période</label>
+          <select id="audit-period">
+            <option value="7">7 jours</option>
+            <option value="30">30 jours</option>
+            <option value="90">90 jours</option>
+          </select>
+        </div>
+        <div class="filters__actions">
+          <button class="btn btn--small btn--ghost" id="audit-refresh">Rafraîchir</button>
+          <button class="btn btn--small btn--ghost" id="audit-export">Export</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="table" aria-label="Table audit">
+          <thead>
+            <tr>
+              <th>Utilisateur</th>
+              <th>Action</th>
+              <th>Date</th>
+              <th>Heure</th>
+              <th>Adresse IP</th>
+              <th>Type d’opération</th>
+            </tr>
+          </thead>
+          <tbody id="audit-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </template>
+
+  <template id="tpl-admin">
+    <section class="page__header">
+      <div>
+        <h2>Administration</h2>
+        <p class="muted">Utilisateurs, rôles, permissions & paramètres système (mock).</p>
+      </div>
+    </section>
+
+    <section class="grid grid--2">
+      <div class="panel">
+        <div class="panel__header"><h3>Utilisateurs</h3><span class="chip">Gestion</span></div>
+        <div class="list-box" id="admin-users"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__header"><h3>Rôles & Permissions</h3><span class="chip">RBAC</span></div>
+        <div class="list-box" id="admin-roles"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__header"><h3>Paramètres système</h3><span class="chip">Sécurité</span></div>
+        <div class="settings">
+          <div class="setting">
+            <div>
+              <div class="setting__title">Politique mot de passe</div>
+              <div class="muted">Complexité, durée et verrouillage (mock).</div>
+            </div>
+            <span class="pill pill--success">Appliquée</span>
+          </div>
+          <div class="setting">
+            <div>
+              <div class="setting__title">2FA obligatoire</div>
+              <div class="muted">Pour toutes les opérations sensibles (mock).</div>
+            </div>
+            <span class="pill pill--success">Activée</span>
+          </div>
+          <div class="setting">
+            <div>
+              <div class="setting__title">Sauvegardes chiffrées</div>
+              <div class="muted">Restauration testée (mock).</div>
+            </div>
+            <span class="pill pill--warning">Quotidiennes</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__header"><h3>Sécurité</h3><span class="chip">Conformité</span></div>
+        <div class="alert alert--info">
+          <b>Mode institutionnel premium</b> : contrôle d’accès, journalisation et export sécurisé (mock UI).
+        </div>
+        <div class="row gap">
+          <button class="btn btn--primary">Tester accès</button>
+          <button class="btn btn--ghost">Régénérer clés</button>
+        </div>
+      </div>
+    </section>
+  </template>
+
+  <noscript>Activez JavaScript pour utiliser ce prototype.</noscript>
+</body>
+</html>
+
