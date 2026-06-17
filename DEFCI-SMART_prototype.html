@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DEFCI-SMART — Prototype Complet</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+:root {
+  --primary:#1B4332; --primary-light:#2D6A4F; --primary-pale:#D8F3DC;
+  --accent:#F4A261; --accent-dark:#E76F51;
+  --danger:#E63946; --warning:#F4A261; --success:#52B788;
+  --surface:#F4F6F9; --surface-2:#FFFFFF;
+  --border:#DEE2E6; --text:#212529; --text-2:#6C757D; --text-3:#ADB5BD;
+  --faci:#1B4332; --gend:#003087; --police:#1A1A2E; --eaux:#2D6A4F; --pcivile:#C1121F;
+  --sidebar:245px; --topbar:62px; --radius:10px;
+  --shadow:0 1px 12px rgba(0,0,0,.08); --shadow-md:0 4px 20px rgba(0,0,0,.12);
+  --font:'Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--surface);color:var(--text);font-size:14px;line-height:1.6;overflow-x:hidden}
+button{cursor:pointer;font-family:var(--font)}
+a{text-decoration:none;color:inherit}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--surface)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
+
+/* SCREENS */
+.screen{display:none}
+#s-login.active{display:flex;min-height:100vh;align-items:center;justify-content:center;background:linear-gradient(145deg,#0D2818 0%,#1B4332 40%,#0a1628 100%);position:relative;overflow:hidden}
+#s-app.active{display:flex;min-height:100vh}
+
+/* LOGIN */
+#s-login::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,rgba(244,162,97,.08),transparent 50%),radial-gradient(circle at 80% 70%,rgba(82,183,136,.06),transparent 50%)}
+.login-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:50px 50px}
+.login-wrap{position:relative;z-index:1;display:flex;width:880px;max-width:96vw;background:rgba(255,255,255,.04);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.09);border-radius:20px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.4)}
+.login-left{flex:1;padding:52px 44px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid rgba(255,255,255,.07)}
+.ci-flag{display:flex;gap:5px;margin-bottom:28px}
+.ci-flag span{height:5px;border-radius:3px;flex:1}
+.ci-flag .o{background:#F4821F}.ci-flag .w{background:rgba(255,255,255,.8)}.ci-flag .g{background:#009A44}
+.login-left h1{font-size:28px;font-weight:900;background:linear-gradient(135deg,#fff,rgba(255,255,255,.7));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.2;margin-bottom:8px}
+.login-left .tagline{color:rgba(255,255,255,.45);font-size:13px;margin-bottom:6px}
+.login-left .sub{color:rgba(255,255,255,.3);font-size:11px;margin-bottom:28px;line-height:1.7}
+.corps-list{display:flex;flex-direction:column;gap:7px}
+.corps-badge{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.65);font-size:11px;font-weight:500}
+.corps-badge i{font-size:13px;width:14px}
+.corps-badge.faci i{color:#52B788}.corps-badge.gend i{color:#60A5FA}.corps-badge.police i{color:#A78BFA}.corps-badge.eaux i{color:#34D399}.corps-badge.pc i{color:#F87171}
+.login-right{width:345px;padding:48px 36px;background:rgba(11,27,18,.7)}
+.login-right h2{color:#fff;font-size:20px;font-weight:900;margin-bottom:3px}
+.login-right .sub2{color:rgba(255,255,255,.35);font-size:11px;margin-bottom:26px}
+.fg{margin-bottom:14px}
+.fg label{display:block;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;margin-bottom:5px}
+.fi-wrap{position:relative}
+.fi-wrap i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.2);font-size:12px}
+.fi{width:100%;padding:10px 14px 10px 35px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.07);color:#fff;font-size:13px;font-family:var(--font);outline:none;transition:.2s}
+.fi:focus{border-color:var(--accent);background:rgba(255,255,255,.10)}
+.fi::placeholder{color:rgba(255,255,255,.18)}
+.tfa-lbl{color:rgba(255,255,255,.4);font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;margin-bottom:7px}
+.tfa-row{display:flex;gap:6px;margin-bottom:18px}
+.tfa-b{flex:1;text-align:center;padding:10px 4px;border-radius:7px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.07);color:#fff;font-size:16px;font-weight:700;font-family:var(--mono);outline:none;transition:.2s}
+.tfa-b:focus{border-color:var(--accent)}
+.btn-login{width:100%;padding:12px;border-radius:9px;border:none;background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s}
+.btn-login:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(244,162,97,.3)}
+.quick-roles{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.07)}
+.qr-title{color:rgba(255,255,255,.25);font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px}
+.role-btn{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);color:rgba(255,255,255,.55);font-size:11px;cursor:pointer;transition:.15s;width:100%;margin-bottom:5px}
+.role-btn:hover{background:rgba(255,255,255,.10);color:rgba(255,255,255,.9)}
+.role-btn i{color:var(--accent);font-size:12px}
+.login-secure{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:14px;color:rgba(255,255,255,.2);font-size:10px}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);background:var(--primary);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;overflow-y:auto;border-right:1px solid rgba(255,255,255,.05)}
+.sb-brand{padding:15px 15px 13px;border-bottom:1px solid rgba(255,255,255,.06)}
+.brand-row{display:flex;align-items:center;gap:9px;margin-bottom:11px}
+.brand-ico{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0}
+.brand-text strong{display:block;color:#fff;font-size:12px;font-weight:800;letter-spacing:.3px}
+.brand-text span{color:rgba(255,255,255,.3);font-size:9px}
+.agent-mini{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:8px 10px}
+.am-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-dark));display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800;flex-shrink:0}
+.am-info strong{display:block;color:#fff;font-size:10px;font-weight:700}
+.am-info span{color:rgba(255,255,255,.3);font-size:9px}
+.online-pill{margin-left:auto;display:flex;align-items:center;gap:3px;background:rgba(82,183,136,.12);border:1px solid rgba(82,183,136,.25);border-radius:20px;padding:2px 6px;color:var(--success);font-size:9px;font-weight:700}
+.online-dot{width:5px;height:5px;border-radius:50%;background:var(--success)}
+.nav-sec{padding:7px 0}
+.nav-lbl{padding:3px 15px 5px;font-size:9px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.2)}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 15px;color:rgba(255,255,255,.5);font-size:12px;font-weight:500;cursor:pointer;transition:.15s;border-left:2px solid transparent}
+.nav-item:hover{color:rgba(255,255,255,.9);background:rgba(255,255,255,.05)}
+.nav-item.active{color:#fff;background:rgba(244,162,97,.12);border-left-color:var(--accent)}
+.nav-item i{width:14px;text-align:center;font-size:12px}
+.nb{margin-left:auto;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:800;color:#fff}
+.nb-red{background:var(--danger)}.nb-orange{background:var(--accent)}
+.sb-footer{margin-top:auto;padding:12px 15px;border-top:1px solid rgba(255,255,255,.06)}
+.btn-logout{width:100%;padding:8px;border-radius:7px;border:1px solid rgba(255,255,255,.08);background:transparent;color:rgba(255,255,255,.35);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;transition:.15s}
+.btn-logout:hover{background:rgba(230,57,70,.15);color:#F87171;border-color:rgba(230,57,70,.3)}
+
+/* TOPBAR */
+.topbar{position:fixed;top:0;left:var(--sidebar);right:0;height:var(--topbar);background:var(--surface-2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 22px;gap:12px;z-index:99;box-shadow:0 1px 6px rgba(0,0,0,.05)}
+.tb-title{font-size:14px;font-weight:800;color:var(--primary)}
+.tb-title span{color:var(--accent)}
+.tb-spacer{flex:1}
+.tb-search{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 12px;width:240px}
+.tb-search input{border:none;background:transparent;font-size:12px;font-family:var(--font);outline:none;width:100%;color:var(--text)}
+.tb-search i{color:var(--text-3);font-size:12px}
+.tb-actions{display:flex;align-items:center;gap:7px}
+.tb-btn{width:34px;height:34px;border-radius:7px;border:1px solid var(--border);background:var(--surface-2);display:flex;align-items:center;justify-content:center;color:var(--text-2);font-size:13px;cursor:pointer;transition:.15s;position:relative}
+.tb-btn:hover{background:var(--surface);color:var(--primary)}
+.tb-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--danger);border:2px solid #fff}
+.tb-user{display:flex;align-items:center;gap:8px;padding:4px 12px 4px 6px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);cursor:pointer}
+.tb-av{width:26px;height:26px;border-radius:6px;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800}
+.tb-user span{font-size:12px;font-weight:600}
+
+/* MAIN */
+.main{margin-left:var(--sidebar);margin-top:var(--topbar);padding:24px;min-height:calc(100vh - var(--topbar))}
+.page{display:none}.page.active{display:block}
+
+/* COMPONENTS */
+.pg-hdr{margin-bottom:20px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.pg-hdr h1{font-size:20px;font-weight:800;color:var(--primary)}
+.pg-hdr p{color:var(--text-2);font-size:12px;margin-top:2px}
+.breadcrumb{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-3);margin-bottom:10px}
+.bc{cursor:pointer}.bc:hover{color:var(--accent)}.bc-cur{color:var(--text);font-weight:600}
+
+/* Cards */
+.card{background:var(--surface-2);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow)}
+.ch{padding:13px 17px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.ch h3{font-size:13px;font-weight:700;color:var(--primary)}
+.cb{padding:17px}
+
+/* Stats */
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:13px;margin-bottom:20px}
+.sc{background:var(--surface-2);border-radius:var(--radius);border:1px solid var(--border);padding:15px 17px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.sc::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--accent)}
+.sc.green::before{background:var(--success)}.sc.blue::before{background:#3B82F6}.sc.red::before{background:var(--danger)}.sc.purple::before{background:#8B5CF6}.sc.navy::before{background:var(--gend)}
+.sl{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text-2);margin-bottom:6px}
+.sv{font-size:22px;font-weight:900;color:var(--primary);line-height:1;font-family:var(--mono)}
+.ss{font-size:10px;color:var(--text-3);margin-top:3px}
+.st{font-size:10px;font-weight:700;margin-top:3px}
+.st.up{color:var(--success)}.st.dn{color:var(--danger)}
+.si{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:24px;opacity:.07;color:var(--primary)}
+
+/* Grids */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
+.g3{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:18px}
+.ga{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;border:none;font-size:12px;font-weight:700;cursor:pointer;transition:.15s;font-family:var(--font)}
+.bp{background:var(--primary);color:#fff}.bp:hover{background:var(--primary-light)}
+.ba{background:var(--accent);color:#fff}.ba:hover{background:var(--accent-dark)}
+.bd{background:var(--danger);color:#fff}.bd:hover{opacity:.9}
+.bs{background:var(--success);color:#fff}.bs:hover{opacity:.9}
+.bo{background:var(--surface-2);border:1px solid var(--border);color:var(--text)}.bo:hover{background:var(--surface);border-color:#aaa}
+.bg{background:transparent;color:var(--text-2);padding:6px 11px}.bg:hover{background:var(--surface);color:var(--primary)}
+.bsm{padding:5px 11px;font-size:11px}.bxs{padding:3px 8px;font-size:10px}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700}
+.bactive{background:var(--primary-pale);color:#1B4332}
+.bpend{background:#FFF8E7;color:#92400E}
+.bdanger{background:#FEF2F2;color:#B91C1C}
+.bblue{background:#EFF6FF;color:#1D4ED8}
+.bpurple{background:#F5F3FF;color:#5B21B6}
+.bgray{background:#F3F4F6;color:#374151}
+
+/* Corps */
+.cb-police{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;background:rgba(26,26,46,.1);color:var(--police)}
+.cb-gend{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;background:rgba(0,48,135,.1);color:var(--gend)}
+.cb-faci{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;background:rgba(27,67,50,.1);color:var(--faci)}
+.cb-eaux{background:rgba(45,106,79,.1);color:var(--eaux);display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:800;letter-spacing:.4px;text-transform:uppercase}
+.cb-pc{background:rgba(193,18,31,.1);color:var(--pcivile);display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:800;letter-spacing:.4px;text-transform:uppercase}
+
+/* Tables */
+table{width:100%;border-collapse:collapse}
+thead th{padding:9px 12px;text-align:left;font-size:10px;font-weight:800;color:var(--text-2);letter-spacing:.5px;text-transform:uppercase;background:var(--surface);border-bottom:1px solid var(--border)}
+tbody tr{border-bottom:1px solid var(--border);transition:.15s}
+tbody tr:hover{background:#FAFBFC}
+tbody td{padding:10px 12px;font-size:12px}
+.mono{font-family:var(--mono);font-size:11px}
+
+/* Info items */
+.ig{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.ii{background:var(--surface);border-radius:8px;padding:10px 12px}
+.il{font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);font-weight:800;margin-bottom:3px}
+.iv{font-size:12px;font-weight:700;color:var(--primary)}
+
+/* Timeline */
+.tl{padding-left:22px;position:relative}
+.tl::before{content:'';position:absolute;left:7px;top:8px;bottom:8px;width:2px;background:var(--border)}
+.tli{position:relative;margin-bottom:18px}
+.tld{position:absolute;left:-18px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid #fff;box-shadow:0 0 0 2px var(--accent)}
+.tld.g{background:var(--success);box-shadow:0 0 0 2px var(--success)}
+.tld.gray{background:var(--text-3);box-shadow:0 0 0 2px var(--text-3)}
+.tl-date{font-size:10px;color:var(--text-3);font-weight:600;margin-bottom:1px}
+.tl-title{font-size:13px;font-weight:700;color:var(--primary)}
+.tl-sub{font-size:11px;color:var(--text-2)}
+.tl-cur{font-size:10px;color:var(--accent);font-weight:800;margin-top:3px}
+
+/* Tabs */
+.tabs{display:flex;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:3px;width:fit-content;margin-bottom:16px}
+.tab{padding:6px 14px;border-radius:7px;border:none;background:transparent;font-size:11px;font-weight:700;color:var(--text-2);cursor:pointer;transition:.15s}
+.tab.active{background:var(--primary);color:#fff}
+.tc{display:none}.tc.active{display:block}
+
+/* Prog */
+.pb{height:5px;background:var(--surface);border-radius:5px;overflow:hidden;margin-top:5px}
+.pf{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--primary),var(--primary-light));transition:width .6s}
+.pf.a{background:linear-gradient(90deg,var(--accent),var(--accent-dark))}.pf.s{background:var(--success)}
+
+/* Workflow */
+.wf{display:flex;align-items:center;margin:14px 0}
+.wfs{display:flex;flex-direction:column;align-items:center;flex:1;position:relative}
+.wfs::after{content:'';position:absolute;top:14px;left:50%;right:-50%;height:2px;background:var(--border);z-index:0}
+.wfs:last-child::after{display:none}
+.wfd{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--text-3);z-index:1;position:relative}
+.wfd.done{background:var(--success);border-color:var(--success);color:#fff}
+.wfd.cur{background:var(--accent);border-color:var(--accent);color:#fff;animation:pulse 2s infinite}
+.wfd.rej{background:var(--danger);border-color:var(--danger);color:#fff}
+.wfl{font-size:9px;font-weight:700;color:var(--text-3);margin-top:4px;text-align:center}
+.wfs.done .wfl{color:var(--success)}.wfs.cur .wfl{color:var(--accent)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(244,162,97,.4)}50%{box-shadow:0 0 0 6px rgba(244,162,97,0)}}
+
+/* Alerts */
+.alert{padding:11px 14px;border-radius:8px;font-size:12px;margin-bottom:12px;display:flex;align-items:flex-start;gap:9px}
+.a-warn{background:#FFF8E7;border:1px solid #F59E0B;color:#92400E}
+.a-ok{background:#F0FDF4;border:1px solid var(--success);color:#166534}
+.a-danger{background:#FEF2F2;border:1px solid var(--danger);color:#B91C1C}
+.a-info{background:#EFF6FF;border:1px solid #3B82F6;color:#1D4ED8}
+
+/* Chart */
+.chart{display:flex;align-items:flex-end;gap:4px;height:140px;padding-bottom:2px}
+.bar{flex:1;border-radius:3px 3px 0 0;min-height:4px;cursor:pointer;transition:.3s}
+.bar:hover{opacity:.8}
+.cls{display:flex;gap:4px;margin-top:5px}
+.cls span{flex:1;text-align:center;font-size:9px;color:var(--text-3)}
+
+/* Hero */
+.hero{background:linear-gradient(145deg,var(--primary) 0%,var(--primary-light) 100%);border-radius:14px;padding:22px 26px;display:flex;align-items:center;gap:18px;margin-bottom:18px;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;right:-40px;bottom:-40px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.04)}
+.h-av{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-dark));display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:900;flex-shrink:0;border:3px solid rgba(255,255,255,.15);position:relative;z-index:1}
+.h-info{color:#fff;flex:1;position:relative;z-index:1}
+.h-info h2{font-size:19px;font-weight:900;margin-bottom:3px}
+.h-meta{display:flex;gap:14px;flex-wrap:wrap;margin-top:6px}
+.hm{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,.55)}
+.hm strong{color:rgba(255,255,255,.9)}
+.h-actions{display:flex;gap:7px;position:relative;z-index:1;flex-shrink:0}
+.hbtn{padding:7px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:.15s;font-family:var(--font)}
+.hbtn:hover{background:rgba(255,255,255,.15)}
+.hbtn.acc{background:var(--accent);border-color:var(--accent)}
+
+/* Signal */
+.sig-hero{background:linear-gradient(145deg,#C1121F 0%,#7f0c14 100%);border-radius:14px;padding:26px 30px;color:#fff;text-align:center;margin-bottom:22px}
+.sig-hero h1{font-size:24px;font-weight:900;margin-bottom:5px}
+.sig-hero p{color:rgba(255,255,255,.65);font-size:13px;max-width:450px;margin:0 auto}
+.sig-cats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:16px}
+.cat{padding:13px 10px;border-radius:9px;border:2px solid var(--border);text-align:center;cursor:pointer;transition:.2s;background:var(--surface-2)}
+.cat:hover,.cat.sel{border-color:var(--danger);background:rgba(230,57,70,.04)}
+.cat i{font-size:20px;color:var(--danger);margin-bottom:5px;display:block}
+.cat span{font-size:11px;font-weight:700;color:var(--text)}
+
+/* IA */
+.ia-card{background:linear-gradient(135deg,#1A1A2E,#16213E);border-radius:12px;padding:16px;color:#fff;border:1px solid rgba(255,255,255,.07)}
+.ia-card h4{font-size:12px;font-weight:800;margin-bottom:3px}
+.ia-card p{font-size:10px;color:rgba(255,255,255,.4);margin-bottom:10px}
+.ia-row{display:flex;justify-content:space-between;align-items:center;padding:7px;background:rgba(255,255,255,.05);border-radius:6px;margin-bottom:4px}
+.ia-row span{font-size:10px;color:rgba(255,255,255,.6)}
+.ia-row strong{font-size:13px;font-weight:900;font-family:var(--mono);color:var(--accent)}
+
+/* Map */
+.map-mock{background:linear-gradient(145deg,#e8f5e9,#c8e6c9);border-radius:var(--radius);height:220px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border:1px solid var(--border)}
+.pin{position:absolute;display:flex;flex-direction:column;align-items:center;cursor:pointer}
+.pin-d{width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.pin-l{background:#fff;border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:9px;font-weight:700;margin-top:3px;box-shadow:0 1px 4px rgba(0,0,0,.1);white-space:nowrap}
+
+/* Form */
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ff{margin-bottom:0}
+.ff label{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text-2);margin-bottom:4px}
+.ff input,.ff select,.ff textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:var(--font);color:var(--text);outline:none;background:var(--surface-2);transition:.15s}
+.ff input:focus,.ff select:focus,.ff textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(27,67,50,.07)}
+.ff textarea{resize:vertical;min-height:68px}
+
+/* Activity */
+.act{display:flex;align-items:flex-start;gap:11px;padding:10px 0;border-bottom:1px solid var(--border)}
+.act:last-child{border-bottom:none}
+.act-ico{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.act-body strong{display:block;font-size:12px;font-weight:700}
+.act-body span{font-size:11px;color:var(--text-2)}
+.act-t{font-size:10px;color:var(--text-3);white-space:nowrap;margin-left:auto}
+
+/* Audit */
+.ao{padding:2px 7px;border-radius:4px;font-size:9px;font-weight:800;text-transform:uppercase}
+.ao-c{background:#F0FDF4;color:#166534}.ao-r{background:#EFF6FF;color:#1D4ED8}
+.ao-u{background:#FFF8E7;color:#92400E}.ao-d{background:#FEF2F2;color:#B91C1C}.ao-a{background:#F5F3FF;color:#5B21B6}
+
+/* Promo card */
+.prom{border:1px solid var(--border);border-radius:9px;padding:13px;background:var(--surface-2);display:flex;align-items:center;gap:12px;transition:.15s;margin-bottom:10px}
+.prom:hover{border-color:var(--accent);box-shadow:0 2px 10px rgba(244,162,97,.1)}
+.prom-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:800;flex-shrink:0}
+.prom-info{flex:1}
+.prom-info strong{display:block;font-size:12px;font-weight:800}
+.prom-info span{font-size:10px;color:var(--text-2)}
+.pc{padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;display:inline-flex;margin:2px}
+.pc-ok{background:var(--primary-pale);color:var(--primary)}.pc-no{background:#FEF2F2;color:var(--danger)}
+
+/* Tracking */
+.ti{flex:1;padding:10px 14px;border:2px solid var(--border);border-radius:9px;font-size:14px;font-family:var(--mono);font-weight:700;letter-spacing:3px;outline:none;color:var(--primary);text-transform:uppercase}
+.ti:focus{border-color:var(--primary)}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:14px;width:500px;max-width:95vw;box-shadow:0 24px 64px rgba(0,0,0,.2)}
+.mh{padding:15px 19px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.mh h3{font-size:14px;font-weight:800}
+.mb{padding:19px}.mf{padding:12px 19px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+.close-btn{background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-2)}
+
+/* Notif panel */
+.np{position:fixed;top:var(--topbar);right:0;bottom:0;width:300px;background:var(--surface-2);border-left:1px solid var(--border);box-shadow:-4px 0 20px rgba(0,0,0,.08);z-index:150;transform:translateX(100%);transition:.25s;overflow-y:auto}
+.np.open{transform:none}
+.nph{padding:13px 17px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.nph h3{font-size:13px;font-weight:800}
+.npc{background:var(--danger);color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:10px}
+.ni{padding:11px 17px;border-bottom:1px solid var(--border);cursor:pointer;transition:.15s}
+.ni:hover{background:var(--surface)}.ni.unread{background:rgba(244,162,97,.04);border-left:3px solid var(--accent)}
+.ni h4{font-size:12px;font-weight:700;margin-bottom:2px}.ni p{font-size:11px;color:var(--text-2)}.ni .nt{font-size:10px;color:var(--text-3);margin-top:2px}
+
+/* KPI big */
+.kpi-hero{background:linear-gradient(135deg,var(--primary),var(--primary-light));border-radius:14px;padding:22px 26px;color:#fff;display:flex;align-items:center;gap:18px;margin-bottom:20px;position:relative;overflow:hidden}
+.kpi-hero::after{content:'';position:absolute;right:-20px;top:-20px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.05)}
+.kn{font-size:44px;font-weight:900;font-family:var(--mono);line-height:1;position:relative;z-index:1}
+.kd{flex:1;position:relative;z-index:1}
+.kd h2{font-size:15px;font-weight:800;margin-bottom:3px}
+.kd p{font-size:11px;color:rgba(255,255,255,.55)}
+
+.sec-t{font-size:11px;font-weight:800;color:var(--primary);margin-bottom:11px;display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.5px}
+.sec-t::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.track-num{background:#fff;color:var(--primary);font-family:var(--mono);font-size:20px;font-weight:900;letter-spacing:4px;padding:10px 20px;border-radius:8px;display:inline-block;margin:10px 0;border:2px solid var(--primary-pale)}
+</style>
+</head>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="s-login" class="screen active">
+  <div class="login-grid"></div>
+  <div class="login-wrap">
+    <div class="login-left">
+      <div class="ci-flag"><span class="o"></span><span class="w"></span><span class="g"></span></div>
+      <h1>DEFCI-SMART</h1>
+      <div class="tagline">Défense & Sécurité Numérique Intelligente — Côte d'Ivoire</div>
+      <div class="sub">Plateforme nationale de gouvernance digitale des Forces de Défense et de Sécurité.<br>Gestion RH · Carrières · Mutations · SIGNAL-CI · IA prédictive</div>
+      <div class="corps-list">
+        <div class="corps-badge faci"><i class="fas fa-shield-halved"></i> Forces Armées (FACI) — ~22 000 agents</div>
+        <div class="corps-badge gend"><i class="fas fa-star-of-life"></i> Gendarmerie Nationale — ~15 000 agents</div>
+        <div class="corps-badge police"><i class="fas fa-shield-alt"></i> Police Nationale — ~15 000 agents</div>
+        <div class="corps-badge eaux"><i class="fas fa-tree"></i> Eaux et Forêts — ~3 000 agents</div>
+        <div class="corps-badge pc"><i class="fas fa-fire-extinguisher"></i> Protection Civile — ~2 000 agents</div>
+      </div>
+    </div>
+    <div class="login-right">
+      <h2>Connexion</h2>
+      <div class="sub2">Accès sécurisé · MFA · TLS 1.3 · AES-256</div>
+      <div class="fg"><label>Matricule ou Email</label><div class="fi-wrap"><i class="fas fa-id-badge"></i><input class="fi" type="text" placeholder="POL-2008-04521"></div></div>
+      <div class="fg"><label>Mot de passe</label><div class="fi-wrap"><i class="fas fa-lock"></i><input class="fi" type="password" placeholder="••••••••••"></div></div>
+      <div class="tfa-lbl"><i class="fas fa-mobile-screen" style="margin-right:4px"></i>Code MFA (TOTP)</div>
+      <div class="tfa-row">
+        <input class="tfa-b" maxlength="1" placeholder="·">
+        <input class="tfa-b" maxlength="1" placeholder="·">
+        <input class="tfa-b" maxlength="1" placeholder="·">
+        <input class="tfa-b" maxlength="1" placeholder="·">
+        <input class="tfa-b" maxlength="1" placeholder="·">
+        <input class="tfa-b" maxlength="1" placeholder="·">
+      </div>
+      <button class="btn-login" onclick="doLogin()"><i class="fas fa-sign-in-alt"></i> Accéder à DEFCI-SMART</button>
+      <div class="quick-roles">
+        <div class="qr-title">Accès rapide prototype</div>
+        <button class="role-btn" onclick="loginAs('drh')"><i class="fas fa-users-cog"></i> DRH — Gestion complète</button>
+        <button class="role-btn" onclick="loginAs('agent')"><i class="fas fa-user-circle"></i> Agent — Portail personnel</button>
+        <button class="role-btn" onclick="loginAs('ministre')"><i class="fas fa-landmark"></i> Ministre — Dashboard KPIs</button>
+        <button class="role-btn" onclick="loginAs('signal')"><i class="fas fa-bullhorn"></i> Citoyen — SIGNAL-CI public</button>
+      </div>
+      <div class="login-secure"><i class="fas fa-lock"></i> Chiffrement bout en bout · Journal d'audit complet</div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="s-app" class="screen">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sb-brand">
+      <div class="brand-row">
+        <div class="brand-ico"><i class="fas fa-shield-halved"></i></div>
+        <div class="brand-text"><strong>DEFCI-SMART</strong><span>Gouvernance Numérique FDS-CI</span></div>
+      </div>
+      <div class="agent-mini">
+        <div class="am-av">DK</div>
+        <div class="am-info"><strong>Col. DIABATÉ Kader</strong><span>DRH · Police Nationale</span></div>
+        <div class="online-pill"><div class="online-dot"></div>En ligne</div>
+      </div>
+    </div>
+    <div class="nav-sec">
+      <div class="nav-lbl">Tableau de bord</div>
+      <div class="nav-item active" onclick="sp('p-dash',this)"><i class="fas fa-home"></i> Accueil</div>
+    </div>
+    <div class="nav-sec">
+      <div class="nav-lbl">Module 01 — RH & Carrières</div>
+      <div class="nav-item" onclick="sp('p-agents',this)"><i class="fas fa-users"></i> Agents <span class="nb nb-orange">+12</span></div>
+      <div class="nav-item" onclick="sp('p-mutations',this)"><i class="fas fa-arrows-rotate"></i> Mutations <span class="nb nb-red">7</span></div>
+      <div class="nav-item" onclick="sp('p-fiche',this)"><i class="fas fa-id-card"></i> Fiche Agent</div>
+      <div class="nav-item" onclick="sp('p-promotions',this)"><i class="fas fa-medal"></i> Promotions IA</div>
+      <div class="nav-item" onclick="sp('p-retraites',this)"><i class="fas fa-hourglass-end"></i> Retraites</div>
+    </div>
+    <div class="nav-sec">
+      <div class="nav-lbl">Module 02 — Portail Agent</div>
+      <div class="nav-item" onclick="sp('p-portail',this)"><i class="fas fa-user-circle"></i> Mon portail</div>
+    </div>
+    <div class="nav-sec">
+      <div class="nav-lbl">Module 04 — SIGNAL-CI</div>
+      <div class="nav-item" onclick="sp('p-signal',this)"><i class="fas fa-bullhorn"></i> Page publique</div>
+      <div class="nav-item" onclick="sp('p-signal-audit',this)"><i class="fas fa-magnifying-glass-chart"></i> Dashboard auditeur <span class="nb nb-red">14</span></div>
+    </div>
+    <div class="nav-sec">
+      <div class="nav-lbl">Reporting & IA</div>
+      <div class="nav-item" onclick="sp('p-kpi',this)"><i class="fas fa-chart-line"></i> KPIs Ministère</div>
+      <div class="nav-item" onclick="sp('p-ia',this)"><i class="fas fa-brain"></i> Intelligence Artificielle</div>
+      <div class="nav-item" onclick="sp('p-sig',this)"><i class="fas fa-map-location-dot"></i> Carte SIG Nationale</div>
+    </div>
+    <div class="nav-sec">
+      <div class="nav-lbl">Système</div>
+      <div class="nav-item" onclick="sp('p-audit',this)"><i class="fas fa-shield-check"></i> Audit & Cybersécurité</div>
+      <div class="nav-item" onclick="sp('p-admin',this)"><i class="fas fa-cogs"></i> Administration</div>
+    </div>
+    <div class="sb-footer">
+      <button class="btn-logout" onclick="doLogin()"><i class="fas fa-sign-out-alt"></i> Déconnexion sécurisée</button>
+    </div>
+  </nav>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="tb-title">DEFCI-SMART <span>·</span> <span id="plabel">Tableau de Bord</span></div>
+    <div class="tb-spacer"></div>
+    <div class="tb-search"><i class="fas fa-search"></i><input type="text" placeholder="Rechercher agent, matricule, unité…"></div>
+    <div class="tb-actions">
+      <div class="tb-btn" onclick="toggleNP()"><i class="fas fa-bell"></i><div class="tb-dot"></div></div>
+      <div class="tb-btn" title="Mode hors-ligne"><i class="fas fa-wifi"></i></div>
+      <div class="tb-user"><div class="tb-av">DK</div><span>Col. DIABATÉ</span><i class="fas fa-chevron-down" style="font-size:9px;color:var(--text-3)"></i></div>
+      <div class="tb-btn" onclick="doLogin()"><i class="fas fa-sign-out-alt"></i></div>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- ══ DASHBOARD ══ -->
+    <div id="p-dash" class="page active">
+      <div class="pg-hdr">
+        <div><h1>Tableau de Bord National</h1><p>Vue consolidée · Lundi 10 Juin 2026 · 5 corps · 57 018 agents</p></div>
+        <div style="display:flex;gap:8px"><button class="btn bo bsm"><i class="fas fa-download"></i> PDF</button><button class="btn bp bsm"><i class="fas fa-sync-alt"></i> Actualiser</button></div>
+      </div>
+      <div class="sg" style="grid-template-columns:repeat(6,1fr)">
+        <div class="sc"><div class="sl">Total agents</div><div class="sv">57 018</div><div class="st up">↑ +1.2% ce mois</div><i class="fas fa-users si"></i></div>
+        <div class="sc green"><div class="sl">Agents actifs</div><div class="sv">54 210</div><div class="ss">95.1% du total</div><i class="fas fa-user-check si"></i></div>
+        <div class="sc blue"><div class="sl">Mutations en cours</div><div class="sv">87</div><div class="st up">↑ 23 cette sem.</div><i class="fas fa-arrows-rotate si"></i></div>
+        <div class="sc red"><div class="sl">Signalements</div><div class="sv">142</div><div class="st dn">14 nouveaux</div><i class="fas fa-triangle-exclamation si"></i></div>
+        <div class="sc purple"><div class="sl">Retraites &lt;24 mois</div><div class="sv">1 284</div><div class="ss">Planification requise</div><i class="fas fa-hourglass-end si"></i></div>
+        <div class="sc navy"><div class="sl">Promouvables IA</div><div class="sv">428</div><div class="ss">Critères atteints</div><i class="fas fa-medal si"></i></div>
+      </div>
+      <div class="g2">
+        <div class="card">
+          <div class="ch"><h3>Effectifs par Corps</h3><button class="btn bg bsm">Détail</button></div>
+          <div class="cb">
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:11px;font-weight:700;color:var(--faci)"><i class="fas fa-shield-halved" style="margin-right:4px"></i>FACI</span><span class="mono" style="color:var(--text-2)">22 400 — 39.3%</span></div><div class="pb"><div class="pf" style="width:39%;background:var(--faci)"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:11px;font-weight:700;color:var(--gend)"><i class="fas fa-star-of-life" style="margin-right:4px"></i>Gendarmerie</span><span class="mono" style="color:var(--text-2)">15 200 — 26.7%</span></div><div class="pb"><div class="pf" style="width:27%;background:var(--gend)"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:11px;font-weight:700;color:var(--police)"><i class="fas fa-shield-alt" style="margin-right:4px"></i>Police Nationale</span><span class="mono" style="color:var(--text-2)">14 800 — 26.0%</span></div><div class="pb"><div class="pf" style="width:26%;background:var(--police)"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:11px;font-weight:700;color:var(--eaux)"><i class="fas fa-tree" style="margin-right:4px"></i>Eaux &amp; Forêts</span><span class="mono" style="color:var(--text-2)">2 980 — 5.2%</span></div><div class="pb"><div class="pf s" style="width:5%"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:11px;font-weight:700;color:var(--pcivile)"><i class="fas fa-fire-extinguisher" style="margin-right:4px"></i>Protection Civile</span><span class="mono" style="color:var(--text-2)">1 638 — 2.9%</span></div><div class="pb"><div class="pf" style="width:3%;background:var(--pcivile)"></div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><h3>Activités Récentes</h3><span style="font-size:11px;color:var(--accent);cursor:pointer">Voir tout →</span></div>
+          <div class="cb" style="padding-bottom:8px">
+            <div class="act"><div class="act-ico" style="background:rgba(244,162,97,.12);color:var(--accent)"><i class="fas fa-arrows-rotate"></i></div><div class="act-body"><strong>Mutation validée — Ministre</strong><span>KONÉ A. → Brigade Bouaké Centre</span></div><div class="act-t">14:28</div></div>
+            <div class="act"><div class="act-ico" style="background:rgba(82,183,136,.12);color:var(--success)"><i class="fas fa-medal"></i></div><div class="act-body"><strong>Promotion IA — Adjudant Chef</strong><span>YOBOUÉ B. · Gendarmerie · Auto-détectée</span></div><div class="act-t">11:02</div></div>
+            <div class="act"><div class="act-ico" style="background:rgba(230,57,70,.12);color:var(--danger)"><i class="fas fa-triangle-exclamation"></i></div><div class="act-body"><strong>SIGNAL-CI — Priorité haute</strong><span>Racket barrage Anyama PK18</span></div><div class="act-t">09:44</div></div>
+            <div class="act"><div class="act-ico" style="background:rgba(59,130,246,.12);color:#3B82F6"><i class="fas fa-user-plus"></i></div><div class="act-body"><strong>45 recrues enregistrées</strong><span>Promo 2026 · FACI · Camp Gallieni</span></div><div class="act-t">08:15</div></div>
+            <div class="act"><div class="act-ico" style="background:rgba(139,92,246,.12);color:#8B5CF6"><i class="fas fa-hourglass-end"></i></div><div class="act-body"><strong>Dossier retraite complet</strong><span>Commandant BROU N. · 32 ans service</span></div><div class="act-t">07:50</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="g3">
+        <div class="card"><div class="ch"><h3>Évolution des Effectifs 2019–2026</h3></div>
+          <div class="cb">
+            <div class="chart"><div class="bar" style="height:55%;background:var(--primary-light)"></div><div class="bar" style="height:62%;background:var(--primary-light)"></div><div class="bar" style="height:68%;background:var(--primary-light)"></div><div class="bar" style="height:74%;background:var(--primary-light)"></div><div class="bar" style="height:80%;background:var(--primary-light)"></div><div class="bar" style="height:88%;background:var(--primary-light)"></div><div class="bar" style="height:93%;background:var(--primary-light)"></div><div class="bar" style="height:100%;background:var(--accent)"></div></div>
+            <div class="cls"><span>2019</span><span>2020</span><span>2021</span><span>2022</span><span>2023</span><span>2024</span><span>2025</span><span>2026</span></div>
+          </div>
+        </div>
+        <div class="card"><div class="ch"><h3>Alertes Critiques</h3></div>
+          <div class="cb" style="padding:12px">
+            <div class="alert a-danger"><i class="fas fa-circle-exclamation"></i><div><strong>142 signalements actifs</strong><br>14 en priorité haute</div></div>
+            <div class="alert a-warn"><i class="fas fa-triangle-exclamation"></i><div><strong>87 mutations en attente</strong><br>Délai moyen : 4.2 jours</div></div>
+            <div class="alert a-info"><i class="fas fa-info-circle"></i><div><strong>1 284 retraites &lt; 24 mois</strong><br>Planification recommandée</div></div>
+            <div class="alert a-ok"><i class="fas fa-check-circle"></i><div><strong>Agents fictifs : 0 détecté</strong><br>Audit du 08/06/2026</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ AGENTS ══ -->
+    <div id="p-agents" class="page">
+      <div class="pg-hdr"><div><h1>Gestion des Agents</h1><p>57 018 agents · 5 corps · Filtres actifs : Tous</p></div>
+        <div style="display:flex;gap:8px"><button class="btn bo bsm"><i class="fas fa-file-export"></i> CSV</button><button class="btn bp bsm" onclick="openM('m-agent')"><i class="fas fa-plus"></i> Nouvel Agent</button></div>
+      </div>
+      <div class="sg" style="grid-template-columns:repeat(5,1fr)">
+        <div class="sc"><div class="sl">Total</div><div class="sv">57 018</div></div>
+        <div class="sc green"><div class="sl">Actifs</div><div class="sv">54 210</div></div>
+        <div class="sc blue"><div class="sl">En congé</div><div class="sv">1 840</div></div>
+        <div class="sc red"><div class="sl">Suspendus</div><div class="sv">124</div></div>
+        <div class="sc purple"><div class="sl">Retraités</div><div class="sv">844</div></div>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:8px;padding:11px 15px;border-bottom:1px solid var(--border);flex-wrap:wrap">
+          <select style="padding:6px 9px;border:1px solid var(--border);border-radius:6px;font-size:11px;outline:none;font-family:var(--font)"><option>Tous les corps</option><option>FACI</option><option>Gendarmerie</option><option>Police Nationale</option><option>Eaux et Forêts</option><option>Protection Civile</option></select>
+          <select style="padding:6px 9px;border:1px solid var(--border);border-radius:6px;font-size:11px;outline:none;font-family:var(--font)"><option>Tous les grades</option><option>Brigadier</option><option>Adjudant</option><option>Lieutenant</option><option>Commandant</option><option>Colonel</option></select>
+          <select style="padding:6px 9px;border:1px solid var(--border);border-radius:6px;font-size:11px;outline:none;font-family:var(--font)"><option>Tous statuts</option><option>Actif</option><option>Congé</option><option>Suspendu</option><option>Retraité</option></select>
+          <select style="padding:6px 9px;border:1px solid var(--border);border-radius:6px;font-size:11px;outline:none;font-family:var(--font)"><option>Toutes régions</option><option>Abidjan</option><option>Bouaké</option><option>Yamoussoukro</option><option>San-Pédro</option></select>
+          <div style="flex:1"></div>
+          <button class="btn bo bsm"><i class="fas fa-file-pdf"></i> PDF</button>
+        </div>
+        <table>
+          <thead><tr><th><input type="checkbox"></th><th>Matricule</th><th>Agent</th><th>Corps</th><th>Grade</th><th>Unité</th><th>Statut</th><th>Recrutement</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><input type="checkbox"></td><td class="mono">POL-2008-04521</td>
+              <td><div style="display:flex;align-items:center;gap:8px"><div style="width:27px;height:27px;border-radius:50%;background:var(--police);display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:800">KA</div><div><div style="font-weight:700;font-size:12px">KONAN Aimé</div><div style="font-size:10px;color:var(--text-3)">konan.aime@police.ci</div></div></div></td>
+              <td><span class="cb-police">Police</span></td><td style="font-weight:700;font-size:12px">Adjudant</td><td style="font-size:12px">District Abidjan</td>
+              <td><span class="badge bactive">Actif</span></td><td class="mono" style="color:var(--text-2)">12/03/2008</td>
+              <td><div style="display:flex;gap:3px"><button class="btn bp bxs" onclick="sp('p-fiche')"><i class="fas fa-eye"></i></button><button class="btn bo bxs"><i class="fas fa-edit"></i></button><button class="btn bo bxs" onclick="openM('m-mutation')"><i class="fas fa-arrows-rotate"></i></button></div></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td><td class="mono">GND-2014-07832</td>
+              <td><div style="display:flex;align-items:center;gap:8px"><div style="width:27px;height:27px;border-radius:50%;background:var(--gend);display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:800">YB</div><div><div style="font-weight:700;font-size:12px">YOBOUÉ Brice</div><div style="font-size:10px;color:var(--text-3)">yoboue.b@gendarmerie.ci</div></div></div></td>
+              <td><span class="cb-gend">Gend.</span></td><td style="font-weight:700;font-size:12px">Brigadier Chef</td><td style="font-size:12px">Bouaké Centre</td>
+              <td><span class="badge bactive">Actif</span></td><td class="mono" style="color:var(--text-2)">05/09/2014</td>
+              <td><div style="display:flex;gap:3px"><button class="btn bp bxs" onclick="sp('p-fiche')"><i class="fas fa-eye"></i></button><button class="btn bo bxs"><i class="fas fa-edit"></i></button><button class="btn bo bxs"><i class="fas fa-arrows-rotate"></i></button></div></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td><td class="mono">FAC-2019-00124</td>
+              <td><div style="display:flex;align-items:center;gap:8px"><div style="width:27px;height:27px;border-radius:50%;background:var(--faci);display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:800">TD</div><div><div style="font-weight:700;font-size:12px">TOURÉ Diarrassouba</div><div style="font-size:10px;color:var(--text-3)">toure.d@faci.ci</div></div></div></td>
+              <td><span class="cb-faci">FACI</span></td><td style="font-weight:700;font-size:12px">Lieutenant</td><td style="font-size:12px">Camp Gallieni</td>
+              <td><span class="badge bblue">Formation</span></td><td class="mono" style="color:var(--text-2)">01/01/2019</td>
+              <td><div style="display:flex;gap:3px"><button class="btn bp bxs" onclick="sp('p-fiche')"><i class="fas fa-eye"></i></button><button class="btn bo bxs"><i class="fas fa-edit"></i></button><button class="btn bo bxs"><i class="fas fa-arrows-rotate"></i></button></div></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td><td class="mono">POL-1994-00321</td>
+              <td><div style="display:flex;align-items:center;gap:8px"><div style="width:27px;height:27px;border-radius:50%;background:#6B7280;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:800">BN</div><div><div style="font-weight:700;font-size:12px">BROU N'Guessan</div><div style="font-size:10px;color:var(--text-3)">brou.n@police.ci</div></div></div></td>
+              <td><span class="cb-police">Police</span></td><td style="font-weight:700;font-size:12px">Commandant</td><td style="font-size:12px">DGPN Abidjan</td>
+              <td><span class="badge bgray">Retraite prévue</span></td><td class="mono" style="color:var(--text-2)">08/07/1994</td>
+              <td><div style="display:flex;gap:3px"><button class="btn bp bxs" onclick="sp('p-fiche')"><i class="fas fa-eye"></i></button><button class="btn bo bxs"><i class="fas fa-edit"></i></button><button class="btn bo bxs"><i class="fas fa-arrows-rotate"></i></button></div></td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="padding:9px 15px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border)">
+          <span style="font-size:11px;color:var(--text-2)">1–4 sur 57 018 agents</span>
+          <div style="display:flex;gap:4px"><button class="btn bo bxs">‹</button><button class="btn bp bxs">1</button><button class="btn bo bxs">2</button><button class="btn bo bxs">3</button><button class="btn bo bxs">›</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ FICHE AGENT ══ -->
+    <div id="p-fiche" class="page">
+      <div class="breadcrumb"><span class="bc" onclick="sp('p-agents')">Agents</span><span>›</span><span class="bc-cur">Fiche Agent</span></div>
+      <div class="hero">
+        <div class="h-av">KA</div>
+        <div class="h-info">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <h2>KONAN Aimé Bertrand</h2>
+            <span class="badge bactive">● Actif</span>
+            <span style="background:rgba(255,255,255,.15);color:#fff;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:800">Adjudant</span>
+            <span class="cb-police" style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.8)">Police Nationale</span>
+          </div>
+          <div class="h-meta">
+            <div class="hm"><i class="fas fa-id-badge"></i><strong>POL-2008-04521</strong></div>
+            <div class="hm"><i class="fas fa-building"></i><strong>District Abidjan</strong></div>
+            <div class="hm"><i class="fas fa-calendar-check"></i><strong>18 ans de service</strong></div>
+            <div class="hm"><i class="fas fa-shield-alt"></i><strong>Chef de Section Sécurité</strong></div>
+          </div>
+        </div>
+        <div class="h-actions">
+          <button class="hbtn acc" onclick="openM('m-mutation')"><i class="fas fa-arrows-rotate"></i> Mutation</button>
+          <button class="hbtn" onclick="openM('m-promo')"><i class="fas fa-medal"></i> Promouvoir</button>
+          <button class="hbtn"><i class="fas fa-print"></i></button>
+        </div>
+      </div>
+      <div class="tabs">
+        <button class="tab active" onclick="st(this,'tf-info')">Informations</button>
+        <button class="tab" onclick="st(this,'tf-car')">Carrière</button>
+        <button class="tab" onclick="st(this,'tf-form')">Formations</button>
+        <button class="tab" onclick="st(this,'tf-disc')">Discipline</button>
+        <button class="tab" onclick="st(this,'tf-docs')">Documents</button>
+      </div>
+      <div id="tf-info" class="tc active">
+        <div class="g2">
+          <div class="card"><div class="ch"><h3>Informations personnelles</h3></div><div class="cb">
+            <div class="ig"><div class="ii"><div class="il">Nom</div><div class="iv">KONAN</div></div><div class="ii"><div class="il">Prénom(s)</div><div class="iv">Aimé Bertrand</div></div><div class="ii"><div class="il">Matricule</div><div class="iv mono">POL-2008-04521</div></div><div class="ii"><div class="il">Date naissance</div><div class="iv">14/07/1983</div></div><div class="ii"><div class="il">Lieu naissance</div><div class="iv">Abidjan – Abobo</div></div><div class="ii"><div class="il">Nationalité</div><div class="iv">Ivoirienne</div></div><div class="ii"><div class="il">Téléphone</div><div class="iv">+225 07 58 24 10</div></div><div class="ii"><div class="il">Email</div><div class="iv" style="font-size:11px">konan.aime@police.ci</div></div><div class="ii"><div class="il">Situation familiale</div><div class="iv">Marié · 3 enfants</div></div></div>
+          </div></div>
+          <div class="card"><div class="ch"><h3>Données RH</h3></div><div class="cb">
+            <div class="ig" style="grid-template-columns:1fr 1fr"><div class="ii"><div class="il">Corps</div><div class="iv">Police Nationale</div></div><div class="ii"><div class="il">Grade</div><div class="iv">Adjudant</div></div><div class="ii"><div class="il">Unité actuelle</div><div class="iv">District Abidjan</div></div><div class="ii"><div class="il">Fonction</div><div class="iv">Chef de Section</div></div><div class="ii"><div class="il">Date recrutement</div><div class="iv">12/03/2008</div></div><div class="ii"><div class="il">Ancienneté</div><div class="iv mono">18 ans 2 mois</div></div><div class="ii"><div class="il">Groupe sanguin</div><div class="iv">O+</div></div><div class="ii"><div class="il">Aptitude</div><div class="iv" style="color:var(--success)">✓ Apte</div></div></div>
+          </div></div>
+        </div>
+      </div>
+      <div id="tf-car" class="tc">
+        <div class="g2">
+          <div class="card"><div class="ch"><h3>Historique des Grades</h3></div><div class="cb">
+            <div class="tl">
+              <div class="tli"><div class="tld gray"></div><div class="tl-date">12 Mars 2008</div><div class="tl-title">Gardien de la Paix</div><div class="tl-sub">Décision N° 2008/0312</div></div>
+              <div class="tli"><div class="tld gray"></div><div class="tl-date">15 Janvier 2012</div><div class="tl-title">Brigadier</div><div class="tl-sub">Décision N° 2012/0045 · Notation A</div></div>
+              <div class="tli"><div class="tld gray"></div><div class="tl-date">10 Juin 2016</div><div class="tl-title">Brigadier Chef</div><div class="tl-sub">Décision N° 2016/0198</div></div>
+              <div class="tli"><div class="tld g"></div><div class="tl-date">05 Septembre 2022</div><div class="tl-title">Adjudant</div><div class="tl-sub">Décision N° 2022/0542</div><div class="tl-cur">✦ Grade actuel · Promouvable Adjudant Chef</div></div>
+            </div>
+          </div></div>
+          <div class="card"><div class="ch"><h3>Historique des Affectations</h3></div><div class="cb">
+            <div class="tl">
+              <div class="tli"><div class="tld gray"></div><div class="tl-date">Mars 2008 – Déc. 2012</div><div class="tl-title">Commissariat d'Abobo</div><div class="tl-sub">Agent de patrouille · 4 ans 9 mois</div></div>
+              <div class="tli"><div class="tld gray"></div><div class="tl-date">Jan. 2013 – Août 2018</div><div class="tl-title">Police Judiciaire Abidjan</div><div class="tl-sub">Enquêteur criminel · 5 ans 7 mois</div></div>
+              <div class="tli"><div class="tld g"></div><div class="tl-date">Sept. 2018 – Présent</div><div class="tl-title">District d'Abidjan</div><div class="tl-sub">Chef de Section Sécurité</div><div class="tl-cur">✦ Affectation actuelle</div></div>
+            </div>
+          </div></div>
+        </div>
+      </div>
+      <div id="tf-form" class="tc">
+        <div class="card"><div class="ch"><h3>Formations &amp; Certifications</h3><button class="btn bp bsm"><i class="fas fa-plus"></i> Ajouter</button></div><div class="cb" style="padding:0">
+          <table><thead><tr><th>Formation</th><th>École</th><th>Durée</th><th>Date</th><th>Résultat</th></tr></thead>
+          <tbody>
+            <tr><td style="font-weight:700">Diplôme École Nationale de Police</td><td>ENP Abidjan</td><td>2 ans</td><td class="mono">2006–2008</td><td><span class="badge bactive">Major promo</span></td></tr>
+            <tr><td style="font-weight:700">Anti-terrorisme N2</td><td>GSPM Abidjan</td><td>3 mois</td><td class="mono">2015</td><td><span class="badge bactive">Certifié</span></td></tr>
+            <tr><td style="font-weight:700">Commandement Supérieur</td><td>ISN Yamoussoukro</td><td>6 semaines</td><td class="mono">2020</td><td><span class="badge bactive">Certifié</span></td></tr>
+            <tr><td style="font-weight:700">Cybersécurité Opérationnelle</td><td>ENP Abidjan</td><td>2 semaines</td><td class="mono">2023</td><td><span class="badge bactive">Certifié</span></td></tr>
+          </tbody></table>
+        </div></div>
+      </div>
+      <div id="tf-disc" class="tc">
+        <div class="card"><div class="cb" style="text-align:center;padding:40px">
+          <i class="fas fa-shield-check" style="font-size:38px;color:var(--success);margin-bottom:10px;display:block"></i>
+          <div style="font-weight:800;color:var(--primary)">Aucune sanction disciplinaire</div>
+          <div style="font-size:12px;color:var(--text-2);margin-top:4px">Dossier vierge sur 18 ans de service</div>
+        </div></div>
+      </div>
+      <div id="tf-docs" class="tc">
+        <div class="card"><div class="ch"><h3>Documents Officiels</h3><button class="btn bp bsm"><i class="fas fa-upload"></i> Importer</button></div><div class="cb" style="padding:0">
+          <table><thead><tr><th>Document</th><th>Type</th><th>Taille</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td style="font-weight:700"><i class="fas fa-file-pdf" style="color:var(--danger);margin-right:6px"></i>Diplôme ENP Abidjan</td><td><span class="badge bblue">Diplôme</span></td><td class="mono">2.4 Mo</td><td class="mono">12/03/2008</td><td><div style="display:flex;gap:4px"><button class="btn bo bxs"><i class="fas fa-eye"></i></button><button class="btn bo bxs"><i class="fas fa-download"></i></button></div></td></tr>
+            <tr><td style="font-weight:700"><i class="fas fa-file-alt" style="color:#3B82F6;margin-right:6px"></i>Décision Promotion Adjudant</td><td><span class="badge bpend">Décision</span></td><td class="mono">0.8 Mo</td><td class="mono">05/09/2022</td><td><div style="display:flex;gap:4px"><button class="btn bo bxs"><i class="fas fa-eye"></i></button><button class="btn bo bxs"><i class="fas fa-download"></i></button></div></td></tr>
+          </tbody></table>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- ══ MUTATIONS ══ -->
+    <div id="p-mutations" class="page">
+      <div class="pg-hdr"><div><h1>Gestion des Mutations</h1><p>87 demandes · Délai moyen : 4.2 jours · Objectif : 5 jours</p></div><button class="btn bp bsm" onclick="openM('m-mutation')"><i class="fas fa-plus"></i> Nouvelle Mutation</button></div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="ch"><h3>Workflow — KONÉ Adama (GND-2014-02841)</h3><span class="badge bpend">En cours · Étape 3/4</span></div>
+        <div class="cb">
+          <div class="wf">
+            <div class="wfs done"><div class="wfd done"><i class="fas fa-check" style="font-size:8px"></i></div><div class="wfl">1. RH<br><small>J+0</small></div></div>
+            <div class="wfs done"><div class="wfd done"><i class="fas fa-check" style="font-size:8px"></i></div><div class="wfl">2. Chef Unité<br><small>J+1</small></div></div>
+            <div class="wfs cur"><div class="wfd cur">3</div><div class="wfl">3. Direction<br><small>En attente</small></div></div>
+            <div class="wfs"><div class="wfd">4</div><div class="wfl">4. Ministre<br><small>J+5</small></div></div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px"><button class="btn bd bsm"><i class="fas fa-times"></i> Rejeter</button><button class="btn bs bsm"><i class="fas fa-check"></i> Valider Étape 3</button></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><h3>Toutes les demandes en cours</h3></div>
+        <table><thead><tr><th>Réf.</th><th>Agent</th><th>De</th><th>Vers</th><th>Motif</th><th>Étape</th><th>Délai</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">MUT-2026-0841</td><td style="font-weight:700">KONÉ Adama</td><td style="font-size:11px">Daloa</td><td style="font-size:11px;color:var(--primary);font-weight:700">Bouaké</td><td style="font-size:11px">Rapprochement familial</td><td><span class="badge bpend">Direction</span></td><td><span class="mono" style="color:var(--success)">J+2</span></td><td><button class="btn bp bxs"><i class="fas fa-eye"></i></button></td></tr>
+          <tr><td class="mono">MUT-2026-0832</td><td style="font-weight:700">DIALLO Moussa</td><td style="font-size:11px">Korhogo</td><td style="font-size:11px;color:var(--primary);font-weight:700">Abidjan</td><td style="font-size:11px">Nécessité de service</td><td><span class="badge bblue">Chef Unité</span></td><td><span class="mono" style="color:var(--success)">J+1</span></td><td><button class="btn bp bxs"><i class="fas fa-eye"></i></button></td></tr>
+          <tr><td class="mono">MUT-2026-0819</td><td style="font-weight:700">TOURÉ Nathalie</td><td style="font-size:11px">San-Pédro</td><td style="font-size:11px;color:var(--primary);font-weight:700">Abidjan Cocody</td><td style="font-size:11px">Promotion + mutation</td><td><span class="badge bactive">Ministre</span></td><td><span class="mono">J+4</span></td><td><button class="btn bp bxs"><i class="fas fa-eye"></i></button></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <!-- ══ PROMOTIONS ══ -->
+    <div id="p-promotions" class="page">
+      <div class="pg-hdr"><div><h1>Promotions — Moteur IA</h1><p>428 agents éligibles détectés automatiquement</p></div><button class="btn bp bsm"><i class="fas fa-robot"></i> Relancer analyse IA</button></div>
+      <div class="alert a-info"><i class="fas fa-robot"></i><div><strong>Moteur IA actif</strong> — Critères vérifiés : ancienneté minimale, formations obligatoires, absence de sanction &lt; 2 ans, notation ≥ B sur 2 derniers cycles.</div></div>
+      <div class="prom"><div class="prom-av" style="background:var(--police)">KA</div><div class="prom-info"><strong>KONAN Aimé · POL-2008-04521 · Police Nationale</strong><span>Adjudant → Adjudant Chef · 18 ans · 4 formations · Notation A</span><div><span class="pc pc-ok">✓ Ancienneté 4 ans</span><span class="pc pc-ok">✓ Formations complètes</span><span class="pc pc-ok">✓ Notation A</span><span class="pc pc-ok">✓ Aucune sanction</span></div></div><div style="display:flex;gap:6px"><button class="btn bs bsm"><i class="fas fa-check"></i> Valider</button><button class="btn bo bsm">Reporter</button></div></div>
+      <div class="prom"><div class="prom-av" style="background:var(--gend)">YB</div><div class="prom-info"><strong>YOBOUÉ Brice · GND-2014-07832 · Gendarmerie</strong><span>Brigadier Chef → Adjudant · 12 ans · 3 formations</span><div><span class="pc pc-ok">✓ Ancienneté 5 ans</span><span class="pc pc-no">✗ Formation tactique manquante</span><span class="pc pc-ok">✓ Notation B+</span><span class="pc pc-ok">✓ Aucune sanction</span></div></div><div style="display:flex;gap:6px"><button class="btn bo bsm" disabled style="opacity:.4">Incomplet</button><button class="btn ba bsm">Inscrire formation</button></div></div>
+    </div>
+
+    <!-- ══ RETRAITES ══ -->
+    <div id="p-retraites" class="page">
+      <div class="pg-hdr"><div><h1>Gestion des Retraites</h1><p>1 284 agents à moins de 24 mois · Objectif liquidation &lt; 30 jours</p></div></div>
+      <div class="sg"><div class="sc red"><div class="sl">&lt; 6 mois</div><div class="sv">128</div><div class="ss">Urgence</div></div><div class="sc"><div class="sl">6–12 mois</div><div class="sv">310</div></div><div class="sc blue"><div class="sl">12–24 mois</div><div class="sv">846</div></div><div class="sc green"><div class="sl">Dossiers complets</div><div class="sv">94.2%</div></div></div>
+      <div class="card"><div class="ch"><h3>Agents en cours de dossier retraite</h3></div><table><thead><tr><th>Agent</th><th>Corps</th><th>Date retraite</th><th>Ancienneté</th><th>Dossier</th><th>Pension estimée</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td style="font-weight:700">BROU N'Guessan</td><td><span class="cb-police">Police</span></td><td class="mono">15/09/2026</td><td class="mono">32 ans</td><td><span class="badge bactive">Complet</span></td><td class="mono">840 000 FCFA/mois</td><td><button class="btn bs bxs">Liquider</button></td></tr>
+        <tr><td style="font-weight:700">CAMARA Ibrahim</td><td><span class="cb-faci">FACI</span></td><td class="mono">01/12/2026</td><td class="mono">28 ans</td><td><span class="badge bpend">En cours</span></td><td class="mono">720 000 FCFA/mois</td><td><button class="btn ba bxs">Compléter</button></td></tr>
+      </tbody></table></div>
+    </div>
+
+    <!-- ══ PORTAIL AGENT ══ -->
+    <div id="p-portail" class="page">
+      <div class="kpi-hero">
+        <div style="position:relative;z-index:1"><div class="kn" style="font-size:36px">KA</div><div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:4px">Portail Personnel</div></div>
+        <div class="kd"><h2>KONAN Aimé Bertrand — Adjudant</h2><p>POL-2008-04521 · District Abidjan · Police Nationale · 18 ans de service</p><div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><span style="background:rgba(255,255,255,.12);color:#fff;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700"><i class="fas fa-wifi-slash" style="margin-right:4px"></i>Mode hors-ligne disponible</span></div></div>
+        <div style="display:flex;gap:7px;position:relative;z-index:1"><button class="hbtn acc" onclick="openM('m-demande')"><i class="fas fa-paper-plane"></i> Nouvelle demande</button><button class="hbtn"><i class="fas fa-download"></i> Mes docs</button></div>
+      </div>
+      <div class="g2">
+        <div class="card"><div class="ch"><h3>Mes demandes en cours</h3></div><div class="cb" style="padding:0"><table><thead><tr><th>Demande</th><th>Soumise</th><th>Statut</th><th>Étape</th></tr></thead>
+        <tbody><tr><td style="font-weight:700">Congé annuel 21 jours</td><td class="mono">01/06/2026</td><td><span class="badge bactive">Approuvée</span></td><td style="font-size:11px">Validée Chef</td></tr>
+        <tr><td style="font-weight:700">Demande de mutation — Yamoussoukro</td><td class="mono">28/05/2026</td><td><span class="badge bpend">En attente</span></td><td style="font-size:11px">DRH → Direction</td></tr></tbody></table></div></div>
+        <div class="card"><div class="ch"><h3>Mon parcours de carrière</h1></div><div class="cb">
+          <div class="tl">
+            <div class="tli"><div class="tld gray"></div><div class="tl-date">2008</div><div class="tl-title">Gardien de la Paix → Brigadier</div></div>
+            <div class="tli"><div class="tld gray"></div><div class="tl-date">2016</div><div class="tl-title">Brigadier Chef</div></div>
+            <div class="tli"><div class="tld g"></div><div class="tl-date">2022 — Présent</div><div class="tl-title">Adjudant</div><div class="tl-cur">✦ Grade actuel · Promouvable Adjudant Chef</div></div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- ══ SIGNAL-CI ══ -->
+    <div id="p-signal" class="page">
+      <div class="sig-hero"><div style="font-size:32px;margin-bottom:5px">🛡️</div><h1>SIGNAL-CI</h1><p>Signalez anonymement corruption, racket ou abus d'autorité des forces de sécurité</p><div style="margin-top:10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.8);padding:3px 11px;border-radius:20px;font-size:11px">🔒 100% Anonyme</span><span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.8);padding:3px 11px;border-radius:20px;font-size:11px">📱 Sans inscription</span><span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.8);padding:3px 11px;border-radius:20px;font-size:11px">⚡ Traitement &lt; 48h</span></div></div>
+      <div class="g2">
+        <div class="card"><div class="ch"><h3><i class="fas fa-bullhorn" style="color:var(--danger);margin-right:6px"></i>Nouveau Signalement</h3></div><div class="cb">
+          <div class="sec-t">Catégorie</div>
+          <div class="sig-cats"><div class="cat sel"><i class="fas fa-road"></i><span>Racket barrage</span></div><div class="cat"><i class="fas fa-hand-fist"></i><span>Abus autorité</span></div><div class="cat"><i class="fas fa-money-bill-wave"></i><span>Corruption</span></div><div class="cat"><i class="fas fa-gun"></i><span>Violence</span></div><div class="cat"><i class="fas fa-user-secret"></i><span>Favoritisme</span></div><div class="cat"><i class="fas fa-circle-question"></i><span>Autre</span></div></div>
+          <div class="ff" style="margin-bottom:11px"><label>Description de l'incident</label><textarea placeholder="Décrivez l'incident : lieu, date, agent(s) impliqué(s) si possible…"></textarea></div>
+          <div class="fg2" style="margin-bottom:11px"><div class="ff"><label>Lieu</label><input type="text" placeholder="Barrage PK18, Autoroute du Nord"></div><div class="ff"><label>Date approximative</label><input type="date"></div></div>
+          <div style="border:2px dashed var(--border);border-radius:8px;padding:16px;text-align:center;color:var(--text-3);font-size:12px;cursor:pointer;margin-bottom:12px"><i class="fas fa-cloud-upload-alt" style="font-size:18px;margin-bottom:5px;display:block"></i>Ajouter une photo / preuve (optionnel)</div>
+          <button class="btn bd" style="width:100%;padding:11px;font-size:13px" onclick="showTrack()"><i class="fas fa-paper-plane"></i> Soumettre mon signalement</button>
+        </div></div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card"><div class="ch"><h3><i class="fas fa-search" style="color:var(--primary);margin-right:6px"></i>Suivre mon signalement</h3></div><div class="cb">
+            <div style="display:flex;gap:8px;margin-bottom:12px"><input class="ti" placeholder="SCI-XXXXX" id="ti"><button class="btn bp" onclick="showTR()"><i class="fas fa-search"></i></button></div>
+            <div id="tr-r" style="display:none"><div class="alert a-warn"><i class="fas fa-clock"></i><div><strong>Signalement SCI-A7K2M9</strong><br>Statut : <strong>En cours d'enquête</strong><br><span style="font-size:11px">Reçu le 05/06/2026 · Auditeur assigné · ~48h</span></div></div></div>
+            <div id="tn" style="display:none;text-align:center"><div style="font-size:12px;color:var(--text-2);margin-bottom:6px">✅ Signalement enregistré ! Conservez ce numéro :</div><div class="track-num">SCI-B4R7X2</div><div style="font-size:11px;color:var(--text-3)">Utilisez ce code pour suivre votre dossier</div></div>
+          </div></div>
+          <div class="card"><div class="ch"><h3>Statistiques publiques 2026</h3></div><div class="cb"><div class="ga" style="grid-template-columns:1fr 1fr">
+            <div style="text-align:center;background:var(--surface);border-radius:8px;padding:12px"><div style="font-size:22px;font-weight:900;font-family:var(--mono);color:var(--danger)">2 847</div><div style="font-size:10px;color:var(--text-2);margin-top:2px">Signalements reçus</div></div>
+            <div style="text-align:center;background:var(--surface);border-radius:8px;padding:12px"><div style="font-size:22px;font-weight:900;font-family:var(--mono);color:var(--success)">89%</div><div style="font-size:10px;color:var(--text-2);margin-top:2px">Traités &lt; 72h</div></div>
+            <div style="text-align:center;background:var(--surface);border-radius:8px;padding:12px"><div style="font-size:22px;font-weight:900;font-family:var(--mono);color:var(--accent)">412</div><div style="font-size:10px;color:var(--text-2);margin-top:2px">Sanctions prononcées</div></div>
+            <div style="text-align:center;background:var(--surface);border-radius:8px;padding:12px"><div style="font-size:22px;font-weight:900;font-family:var(--mono);color:var(--primary)">-58%</div><div style="font-size:10px;color:var(--text-2);margin-top:2px">Racket vs 2023</div></div>
+          </div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SIGNAL AUDIT ══ -->
+    <div id="p-signal-audit" class="page">
+      <div class="pg-hdr"><div><h1>Dashboard Auditeur — SIGNAL-CI</h1><p>142 signalements actifs · 14 nouveaux · 8 priorité haute</p></div></div>
+      <div class="sg"><div class="sc red"><div class="sl">Nouveaux 24h</div><div class="sv">14</div></div><div class="sc"><div class="sl">En enquête</div><div class="sv">87</div></div><div class="sc green"><div class="sl">Résolus ce mois</div><div class="sv">312</div></div><div class="sc blue"><div class="sl">Sanctions</div><div class="sv">41</div></div></div>
+      <div class="card"><div class="ch"><h3>Signalements récents</h3><button class="btn bo bsm"><i class="fas fa-filter"></i> Filtrer</button></div>
+      <table><thead><tr><th>N° Suivi</th><th>Catégorie</th><th>Lieu</th><th>Date</th><th>Priorité</th><th>Statut</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">SCI-A7K2M9</td><td><span class="badge bdanger">Racket</span></td><td style="font-size:11px">Barrage Anyama PK18</td><td class="mono">09/06/2026</td><td><span class="badge bdanger">Haute</span></td><td><span class="badge bpend">Assigné</span></td><td><button class="btn bp bxs"><i class="fas fa-eye"></i></button></td></tr>
+        <tr><td class="mono">SCI-B4R7X2</td><td><span class="badge bpurple">Abus autorité</span></td><td style="font-size:11px">Commissariat Treichville</td><td class="mono">08/06/2026</td><td><span class="badge bpend">Moyenne</span></td><td><span class="badge bblue">En enquête</span></td><td><button class="btn bp bxs"><i class="fas fa-eye"></i></button></td></tr>
+        <tr><td class="mono">SCI-C9T5Y1</td><td><span class="badge bpend">Corruption</span></td><td style="font-size:11px">Douane Aéroport FHB</td><td class="mono">07/06/2026</td><td><span class="badge bdanger">Haute</span></td><td><span class="badge bactive">Résolu</span></td><td><button class="btn bp bxs"><i class="fas fa-eye"></i></button></td></tr>
+      </tbody></table></div>
+    </div>
+
+    <!-- ══ KPI ══ -->
+    <div id="p-kpi" class="page">
+      <div class="pg-hdr"><div><h1>Tableau de Bord Ministériel</h1><p>Vue stratégique consolidée · Ministère Défense & Intérieur</p></div></div>
+      <div class="kpi-hero"><div style="position:relative;z-index:1"><div class="kn">57 018</div><div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:3px">agents sous gestion numérique</div></div><div class="kd"><h2>Taux de numérisation : 100% des effectifs</h2><p>Zéro agent fictif · Mutations en 4.2 jours · Pensions en &lt;30 jours</p></div></div>
+      <div class="g2">
+        <div class="card"><div class="ch"><h3>Temps de traitement mutations</h3></div><div class="cb">
+          <div class="chart"><div class="bar" style="height:90%;background:var(--danger)"></div><div class="bar" style="height:78%;background:var(--danger)"></div><div class="bar" style="height:62%;background:var(--accent)"></div><div class="bar" style="height:48%;background:var(--accent)"></div><div class="bar" style="height:33%;background:var(--success)"></div><div class="bar" style="height:25%;background:var(--success)"></div><div class="bar" style="height:18%;background:var(--primary)"></div></div>
+          <div class="cls"><span>Jan</span><span>Fév</span><span>Mar</span><span>Avr</span><span>Mai</span><span>Jun</span><span>Act.</span></div>
+          <div style="text-align:center;font-size:11px;color:var(--text-2);margin-top:7px">De <strong>60 jours</strong> à <strong>4.2 jours</strong> — réduction de <strong>93%</strong></div>
+        </div></div>
+        <div class="card"><div class="ch"><h3>Économies réalisées</h3></div><div class="cb">
+          <div style="background:var(--primary-pale);border-radius:8px;padding:13px;margin-bottom:10px"><div style="font-size:11px;color:var(--primary);font-weight:700;margin-bottom:3px">Agents fictifs éliminés</div><div style="font-size:20px;font-weight:900;font-family:var(--mono);color:var(--primary)">2 840</div><div style="font-size:11px;color:var(--primary-light)">≈ 14 milliards FCFA économisés/an</div></div>
+          <div style="background:#EFF6FF;border-radius:8px;padding:13px"><div style="font-size:11px;color:#1D4ED8;font-weight:700;margin-bottom:3px">Pensions liquidées &lt; 30j</div><div style="font-size:20px;font-weight:900;font-family:var(--mono);color:#1D4ED8">98.4%</div><div style="font-size:11px;color:#3B82F6">vs 12–24 mois avant DEFCI-SMART</div></div>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- ══ IA ══ -->
+    <div id="p-ia" class="page">
+      <div class="pg-hdr"><div><h1>Intelligence Artificielle</h1><p>4 moteurs prédictifs · Planification RH assistée</p></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="ia-card"><h4><i class="fas fa-hourglass-end" style="color:var(--accent);margin-right:5px"></i>Prédictions de Retraites</h4><p>Projection des départs sur 24 mois par corps et région</p><div class="ia-row"><span>FACI — Horizon 12 mois</span><strong>284 départs</strong></div><div class="ia-row"><span>Gendarmerie — Horizon 12 mois</span><strong>198 départs</strong></div><div class="ia-row"><span>Police — Horizon 12 mois</span><strong>312 départs</strong></div><div class="ia-row"><span>Total FDS — Horizon 24 mois</span><strong>1 284 départs</strong></div></div>
+        <div class="ia-card"><h4><i class="fas fa-user-plus" style="color:#60A5FA;margin-right:5px"></i>Besoins en Recrutement</h4><p>Analyse des postes vacants et recommandations par région</p><div class="ia-row"><span>Abidjan — Déficit Police</span><strong>+420 agents</strong></div><div class="ia-row"><span>Bouaké — Déficit Gendarmerie</span><strong>+180 agents</strong></div><div class="ia-row"><span>Zones rurales — Déficit total</span><strong>+850 agents</strong></div><div class="ia-row"><span>Recrutement recommandé 2026</span><strong>2 340 recrues</strong></div></div>
+        <div class="ia-card"><h4><i class="fas fa-graduation-cap" style="color:#34D399;margin-right:5px"></i>Gaps de Formation</h4><p>Détection des manques bloquant les promotions</p><div class="ia-row"><span>Sans formation tactique</span><strong>1 840</strong></div><div class="ia-row"><span>Sans formation numérique</span><strong>3 200</strong></div><div class="ia-row"><span>Promotions bloquées (formation manquante)</span><strong>428</strong></div></div>
+        <div class="ia-card"><h4><i class="fas fa-truck-loading" style="color:#F87171;margin-right:5px"></i>Renouvellement Logistique</h4><p>Matériel à renouveler dans les 12 prochains mois</p><div class="ia-row"><span>Véhicules &gt; 10 ans</span><strong>840 unités</strong></div><div class="ia-row"><span>Équipements radio obsolètes</span><strong>2 100 unités</strong></div><div class="ia-row"><span>Budget estimé</span><strong>4.2 Md FCFA</strong></div></div>
+      </div>
+    </div>
+
+    <!-- ══ SIG ══ -->
+    <div id="p-sig" class="page">
+      <div class="pg-hdr"><div><h1>Carte SIG Nationale</h1><p>Répartition géographique des effectifs FDS</p></div></div>
+      <div class="card"><div class="ch"><h3>Côte d'Ivoire — Effectifs par région</h3><div style="display:flex;gap:5px"><button class="btn bo bxs">Effectifs</button><button class="btn bp bxs">Postes vacants</button><button class="btn bo bxs">Unités</button></div></div>
+      <div style="padding:0"><div class="map-mock">
+        <div style="text-align:center;color:var(--primary);z-index:1;position:relative"><i class="fas fa-map" style="font-size:28px;opacity:.15;margin-bottom:6px;display:block"></i><div style="font-weight:700;font-size:11px;opacity:.4">Carte interactive Leaflet / OpenStreetMap</div><div style="font-size:10px;opacity:.3;margin-top:2px">En production : tuiles OSM chargées dynamiquement</div></div>
+        <div class="pin" style="top:52%;left:38%"><div class="pin-d" style="background:var(--danger)"></div><div class="pin-l">Abidjan · 18 420</div></div>
+        <div class="pin" style="top:28%;left:55%"><div class="pin-d" style="background:var(--gend)"></div><div class="pin-l">Bouaké · 8 200</div></div>
+        <div class="pin" style="top:44%;left:50%"><div class="pin-d" style="background:var(--primary)"></div><div class="pin-l">Yamoussoukro · 4 800</div></div>
+        <div class="pin" style="top:65%;left:26%"><div class="pin-d" style="background:var(--accent)"></div><div class="pin-l">San-Pédro · 3 200</div></div>
+        <div class="pin" style="top:15%;left:62%"><div class="pin-d" style="background:var(--eaux)"></div><div class="pin-l">Korhogo · 2 400</div></div>
+      </div></div></div>
+    </div>
+
+    <!-- ══ AUDIT ══ -->
+    <div id="p-audit" class="page">
+      <div class="pg-hdr"><div><h1>Journal d'Audit &amp; Cybersécurité</h1><p>100% des actions tracées · IP + horodatage + acteur</p></div></div>
+      <div class="sg"><div class="sc green"><div class="sl">Événements 24h</div><div class="sv">1 284</div></div><div class="sc red"><div class="sl">Tentatives bloquées</div><div class="sv">3</div></div><div class="sc blue"><div class="sl">Sessions actives</div><div class="sv">47</div></div><div class="sc"><div class="sl">Uptime</div><div class="sv">99.9%</div></div></div>
+      <div class="card"><div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border)">
+        <select style="padding:5px 9px;border:1px solid var(--border);border-radius:6px;font-size:11px;outline:none;font-family:var(--font)"><option>Toutes les opérations</option><option>CREATE</option><option>READ</option><option>UPDATE</option><option>DELETE</option><option>AUTH</option></select>
+        <input type="date" style="padding:5px 9px;border:1px solid var(--border);border-radius:6px;font-size:11px;outline:none;font-family:var(--font)">
+        <button class="btn bo bsm"><i class="fas fa-download"></i> Exporter</button>
+      </div>
+      <table><thead><tr><th>Timestamp</th><th>Utilisateur</th><th>Opération</th><th>Entité</th><th>Adresse IP</th><th>Résultat</th></tr></thead>
+      <tbody>
+        <tr><td class="mono" style="font-size:10px">2026-06-10 14:28:33</td><td style="font-weight:700;font-size:11px">Col. DIABATÉ K.</td><td><span class="ao ao-u">UPDATE</span></td><td style="font-size:11px">Agent POL-2008-04521 — Grade</td><td class="mono" style="font-size:10px">196.28.14.52</td><td><span class="badge bactive" style="font-size:9px">Succès</span></td></tr>
+        <tr><td class="mono" style="font-size:10px">2026-06-10 11:02:18</td><td style="font-weight:700;font-size:11px">DRH Adj. KONÉ S.</td><td><span class="ao ao-c">CREATE</span></td><td style="font-size:11px">Mutation MUT-2026-0841</td><td class="mono" style="font-size:10px">196.28.14.88</td><td><span class="badge bactive" style="font-size:9px">Succès</span></td></tr>
+        <tr><td class="mono" style="font-size:10px">2026-06-10 09:44:05</td><td style="font-weight:700;font-size:11px">SYSTÈME</td><td><span class="ao ao-c">CREATE</span></td><td style="font-size:11px">Signalement SCI-A7K2M9</td><td class="mono" style="font-size:10px">41.202.219.14</td><td><span class="badge bactive" style="font-size:9px">Succès</span></td></tr>
+        <tr><td class="mono" style="font-size:10px">2026-06-10 07:30:12</td><td style="font-weight:700;font-size:11px">Inconnu</td><td><span class="ao ao-a">AUTH</span></td><td style="font-size:11px">3 échecs MFA — Login bloqué</td><td class="mono" style="font-size:10px">95.211.42.100</td><td><span class="badge bdanger" style="font-size:9px">Bloqué</span></td></tr>
+      </tbody></table></div>
+    </div>
+
+    <!-- ══ ADMIN ══ -->
+    <div id="p-admin" class="page">
+      <div class="pg-hdr"><div><h1>Administration Système</h1><p>Gestion des utilisateurs, rôles, permissions et configuration</p></div></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px">
+        <div class="card" style="cursor:pointer" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'"><div class="cb" style="text-align:center;padding:22px"><div style="width:44px;height:44px;border-radius:10px;background:rgba(27,67,50,.1);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--primary);margin:0 auto 10px"><i class="fas fa-users-cog"></i></div><div style="font-weight:800;margin-bottom:3px">Utilisateurs</div><div style="font-size:11px;color:var(--text-2)">Comptes · Rôles · Permissions</div></div></div>
+        <div class="card" style="cursor:pointer" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'"><div class="cb" style="text-align:center;padding:22px"><div style="width:44px;height:44px;border-radius:10px;background:rgba(59,130,246,.1);display:flex;align-items:center;justify-content:center;font-size:18px;color:#3B82F6;margin:0 auto 10px"><i class="fas fa-database"></i></div><div style="font-weight:800;margin-bottom:3px">Sauvegardes</div><div style="font-size:11px;color:var(--text-2)">Backup J/H/M · Restauration</div></div></div>
+        <div class="card" style="cursor:pointer" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'"><div class="cb" style="text-align:center;padding:22px"><div style="width:44px;height:44px;border-radius:10px;background:rgba(139,92,246,.1);display:flex;align-items:center;justify-content:center;font-size:18px;color:#8B5CF6;margin:0 auto 10px"><i class="fas fa-shield-check"></i></div><div style="font-weight:800;margin-bottom:3px">Sécurité</div><div style="font-size:11px;color:var(--text-2)">MFA · Sessions · WAF · IDS</div></div></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- NOTIFICATION PANEL -->
+<div id="notif-panel" class="np">
+  <div class="nph"><h3>Notifications <span class="npc">4</span></h3><button class="btn bg bsm" onclick="toggleNP()"><i class="fas fa-times"></i></button></div>
+  <div class="ni unread"><h4>Mutation à valider — Direction</h4><p>KONÉ Adama · MUT-2026-0841 attend votre validation</p><div class="nt">Il y a 45 min</div></div>
+  <div class="ni unread"><h4>SIGNAL-CI — Priorité haute</h4><p>Barrage Anyama PK18 · SCI-A7K2M9</p><div class="nt">Il y a 2h</div></div>
+  <div class="ni unread"><h4>IA — 428 promouvables détectés</h4><p>Rapport mensuel disponible</p><div class="nt">Ce matin</div></div>
+  <div class="ni"><h4>Sauvegarde quotidienne réussie</h4><p>Backup J · 02h00</p><div class="nt">Hier</div></div>
+</div>
+
+<!-- MODALS -->
+<div id="m-agent" class="modal-overlay"><div class="modal"><div class="mh"><h3><i class="fas fa-user-plus" style="color:var(--accent);margin-right:7px"></i>Nouvel Agent</h3><button class="close-btn" onclick="closeM('m-agent')">×</button></div><div class="mb"><div class="fg2"><div class="ff"><label>Nom</label><input type="text" placeholder="KONAN"></div><div class="ff"><label>Prénom(s)</label><input type="text" placeholder="Aimé Bertrand"></div><div class="ff"><label>Corps</label><select><option>Police Nationale</option><option>FACI</option><option>Gendarmerie</option><option>Eaux et Forêts</option><option>Protection Civile</option></select></div><div class="ff"><label>Grade initial</label><select><option>Gardien de la Paix</option><option>Brigadier</option></select></div><div class="ff"><label>Date naissance</label><input type="date"></div><div class="ff"><label>Date recrutement</label><input type="date"></div><div class="ff" style="grid-column:1/-1"><label>Unité d'affectation</label><input type="text" placeholder="District Abidjan"></div></div></div><div class="mf"><button class="btn bo bsm" onclick="closeM('m-agent')">Annuler</button><button class="btn bp bsm"><i class="fas fa-save"></i> Enregistrer</button></div></div></div>
+
+<div id="m-mutation" class="modal-overlay"><div class="modal"><div class="mh"><h3><i class="fas fa-arrows-rotate" style="color:var(--accent);margin-right:7px"></i>Nouvelle Mutation</h3><button class="close-btn" onclick="closeM('m-mutation')">×</button></div><div class="mb"><div class="fg2"><div class="ff" style="grid-column:1/-1"><label>Agent concerné</label><input type="text" placeholder="Rechercher par matricule ou nom…"></div><div class="ff"><label>Unité de départ</label><input type="text" placeholder="District Abidjan" readonly style="background:var(--surface)"></div><div class="ff"><label>Unité d'arrivée</label><select><option>Bouaké Centre</option><option>San-Pédro</option><option>Yamoussoukro</option></select></div><div class="ff"><label>Motif</label><select><option>Rapprochement familial</option><option>Nécessité de service</option><option>Promotion</option><option>Disciplinaire</option></select></div><div class="ff"><label>Date souhaitée</label><input type="date"></div><div class="ff" style="grid-column:1/-1"><label>Justification</label><textarea placeholder="Détaillez le motif…"></textarea></div></div></div><div class="mf"><button class="btn bo bsm" onclick="closeM('m-mutation')">Annuler</button><button class="btn bp bsm"><i class="fas fa-paper-plane"></i> Soumettre</button></div></div></div>
+
+<div id="m-promo" class="modal-overlay"><div class="modal"><div class="mh"><h3><i class="fas fa-medal" style="color:var(--accent);margin-right:7px"></i>Attribuer une Promotion</h3><button class="close-btn" onclick="closeM('m-promo')">×</button></div><div class="mb"><div class="alert a-ok"><i class="fas fa-robot"></i><div>IA confirme : KONAN Aimé remplit tous les critères pour <strong>Adjudant Chef</strong></div></div><div class="fg2"><div class="ff"><label>Grade actuel</label><input type="text" value="Adjudant" readonly style="background:var(--surface)"></div><div class="ff"><label>Nouveau grade</label><select><option>Adjudant Chef</option></select></div><div class="ff"><label>N° Décision</label><input type="text" placeholder="2026/0412"></div><div class="ff"><label>Date d'effet</label><input type="date"></div></div></div><div class="mf"><button class="btn bo bsm" onclick="closeM('m-promo')">Annuler</button><button class="btn bp bsm"><i class="fas fa-check"></i> Valider</button></div></div></div>
+
+<div id="m-demande" class="modal-overlay"><div class="modal"><div class="mh"><h3><i class="fas fa-paper-plane" style="color:var(--accent);margin-right:7px"></i>Nouvelle Demande</h3><button class="close-btn" onclick="closeM('m-demande')">×</button></div><div class="mb"><div class="fg2"><div class="ff" style="grid-column:1/-1"><label>Type de demande</label><select><option>-- Choisir --</option><option>Congé annuel</option><option>Congé maladie</option><option>Demande de mutation</option><option>Logement de fonction</option><option>Attestation de service</option></select></div><div class="ff"><label>Date début</label><input type="date"></div><div class="ff"><label>Date fin</label><input type="date"></div><div class="ff" style="grid-column:1/-1"><label>Motif</label><textarea placeholder="Décrivez votre demande…"></textarea></div></div><div class="alert a-info" style="margin-top:10px"><i class="fas fa-wifi-slash"></i><div>Disponible hors-ligne — synchronisée au retour du réseau.</div></div></div><div class="mf"><button class="btn bo bsm" onclick="closeM('m-demande')">Annuler</button><button class="btn bp bsm"><i class="fas fa-paper-plane"></i> Soumettre</button></div></div></div>
+
+<script>
+const labels={'p-dash':'Tableau de Bord','p-agents':'Gestion des Agents','p-fiche':'Fiche Agent','p-mutations':'Mutations','p-promotions':'Promotions IA','p-retraites':'Retraites','p-portail':'Portail Agent','p-signal':'SIGNAL-CI Public','p-signal-audit':'SIGNAL-CI Auditeur','p-kpi':'KPIs Ministère','p-ia':'Intelligence Artificielle','p-sig':'Carte SIG','p-audit':'Audit & Cybersécurité','p-admin':'Administration'};
+function doLogin(){document.getElementById('s-login').classList.remove('active');const a=document.getElementById('s-app');a.classList.add('active')}
+function loginAs(r){doLogin();if(r==='signal')sp('p-signal');else if(r==='agent')sp('p-portail');else if(r==='ministre')sp('p-kpi');else sp('p-dash')}
+function sp(id,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const pg=document.getElementById(id);if(pg)pg.classList.add('active');if(el){document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));el.classList.add('active')}document.getElementById('plabel').textContent=labels[id]||id;document.getElementById('notif-panel').classList.remove('open')}
+function st(btn,id){btn.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');const p=btn.closest('.page');p.querySelectorAll('.tc').forEach(t=>t.classList.remove('active'));const t=document.getElementById(id);if(t)t.classList.add('active')}
+function toggleNP(){document.getElementById('notif-panel').classList.toggle('open')}
+function openM(id){document.getElementById(id).classList.add('open')}
+function closeM(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')})});
+document.querySelectorAll('.cat').forEach(c=>{c.addEventListener('click',()=>{c.closest('.sig-cats').querySelectorAll('.cat').forEach(x=>x.classList.remove('sel'));c.classList.add('sel')})});
+function showTrack(){document.getElementById('tn').style.display='block'}
+function showTR(){document.getElementById('tr-r').style.display='block'}
+document.querySelectorAll('.tfa-b').forEach((b,i,a)=>{b.addEventListener('input',()=>{if(b.value&&i<a.length-1)a[i+1].focus()})});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('s-login').classList.contains('active'))doLogin()});
+</script>
+</body>
+</html>
